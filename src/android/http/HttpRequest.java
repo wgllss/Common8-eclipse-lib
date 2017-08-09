@@ -26,7 +26,7 @@ import android.reflection.ExceptionEnum.RefelectException;
  ******************************************************************************************
  */
 public class HttpRequest {
-	public static int connectTimeOut = 20000; // 连接超时时间毫秒
+	public static int connectTimeOut = 30000; // 连接超时时间毫秒
 
 	// @SuppressWarnings("rawtypes")
 	// public static String getRequest(String url, Map<String, String> parames, String inputEncoding) {
