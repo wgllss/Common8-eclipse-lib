@@ -9,8 +9,8 @@ import android.application.CommonApplication;
 import android.application.CrashHandler;
 import android.content.Context;
 import android.http.HttpRequest;
-import android.os.Message;
 import android.reflection.ErrorMsgEnum;
+import android.reflection.NetWorkMsg;
 import android.utils.ShowLog;
 import android.widget.CommonToast;
 
@@ -61,132 +61,130 @@ public class CommonNetWorkExceptionToast {
 		toastError = context.getResources().getStringArray(id);
 	}
 
-	public void NetWorkHandlerMessage(Message msg, HandleMessageListener mHandleMessageListener) {
+	public void NetWorkCall(NetWorkMsg msg, NetWorkCallListener mNetWorkCallListener) {
 		try {
-			if (mHandleMessageListener != null) {
-				mHandleMessageListener.NetWorkHandlMessage(msg);
+			if (mNetWorkCallListener != null) {
+				mNetWorkCallListener.NetWorkCall(msg);
 			}
 			switch (msg.what) {
 			case ErrorMsgEnum.EHttpIO_Msg:
 				String remark = (String) msg.obj;
 				if (remark != null && remark.length() > 0) {
 					if (HttpRequest.IsUsableNetWork(CommonApplication.getContext())) {
-						toast(msg.arg1, toastError[0]);
+						toast(msg.showToast, toastError[0]);
 						ShowLog.i(TAG, toastError[0]);
 					} else {
-						if (msg.arg1 > 0 && msg.arg1 == ErrorMsgEnum.NetWorkMsg1WhithToast && !isInToastPeriod()) {
+						if (!isInToastPeriod()) {
 							CommonToast.show(toastError[1]);
 						}
-						// toast(msg.arg1, toastError[1]);
 						ShowLog.i(TAG, toastError[1]);
 					}
 				} else {
-					toast(msg.arg1, toastError[2]);
+					toast(msg.showToast, toastError[2]);
 					ShowLog.i(TAG, toastError[2]);
 				}
 				break;
 			case ErrorMsgEnum.ENotFoundMethods_Msg:
-				toast(msg.arg1, toastError[3]);
+				toast(msg.showToast, toastError[3]);
 				ShowLog.i(TAG, toastError[3]);
 				break;
 			case ErrorMsgEnum.EHttpProtocol_Msg:
-				toast(msg.arg1, toastError[4]);
+				toast(msg.showToast, toastError[4]);
 				ShowLog.i(TAG, toastError[4]);
 				break;
 			case ErrorMsgEnum.EXmlParser_Msg:
-				toast(msg.arg1, toastError[5]);
+				toast(msg.showToast, toastError[5]);
 				ShowLog.i(TAG, toastError[5]);
 				break;
 			case ErrorMsgEnum.EXmlIO_Msg:
-				toast(msg.arg1, toastError[6]);
+				toast(msg.showToast, toastError[6]);
 				ShowLog.i(TAG, toastError[6]);
 				break;
 			case ErrorMsgEnum.EClassNotFound_Msg:
-				toast(msg.arg1, toastError[7]);
+				toast(msg.showToast, toastError[7]);
 				ShowLog.i(TAG, toastError[7]);
 				break;
 			case ErrorMsgEnum.EIllegalAccess_Msg:
-				toast(msg.arg1, toastError[8]);
+				toast(msg.showToast, toastError[8]);
 				ShowLog.i(TAG, toastError[8]);
 				break;
 			case ErrorMsgEnum.ESecurity_Msg:
-				toast(msg.arg1, toastError[9]);
+				toast(msg.showToast, toastError[9]);
 				ShowLog.i(TAG, toastError[9]);
 				break;
 			case ErrorMsgEnum.EMobileNetUseless_Msg:
-				if (msg.arg1 > 0 && msg.arg1 == ErrorMsgEnum.NetWorkMsg1WhithToast && !isInToastPeriod()) {
+				if (!isInToastPeriod()) {
 					CommonToast.show(toastError[1]);
 				}
-				// toast(msg.arg1, toastError[1]);
 				ShowLog.i(TAG, toastError[1]);
 				break;
 			case ErrorMsgEnum.EConnectTimeout_Msg:
-				toast(msg.arg1, toastError[10]);
+				toast(msg.showToast, toastError[10]);
 				ShowLog.i(TAG, toastError[10]);
 				break;
 			case ErrorMsgEnum.EParamHasNull_Msg:
-				toast(msg.arg1, toastError[11]);
+				toast(msg.showToast, toastError[11]);
 				ShowLog.i(TAG, toastError[11]);
 				break;
 			case ErrorMsgEnum.EParamUnInvalid_Msg:
-				toast(msg.arg1, toastError[12]);
+				toast(msg.showToast, toastError[12]);
 				ShowLog.i(TAG, toastError[12]);
 				break;
 			case ErrorMsgEnum.EJsonParser_Msg:
-				toast(msg.arg1, toastError[13]);
+				toast(msg.showToast, toastError[13]);
 				ShowLog.i(TAG, toastError[13]);
 				break;
 			case ErrorMsgEnum.ENotDefine_Msg:
-				toast(msg.arg1, toastError[14]);
+				toast(msg.showToast, toastError[14]);
 				ShowLog.i(TAG, toastError[14]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail400:
-				toast(msg.arg1, toastError[15]);
+				toast(msg.showToast, toastError[15]);
 				ShowLog.i(TAG, toastError[15]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail403:
-				toast(msg.arg1, toastError[16]);
+				toast(msg.showToast, toastError[16]);
 				ShowLog.i(TAG, toastError[16]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail404:
-				toast(msg.arg1, toastError[17]);
+				toast(msg.showToast, toastError[17]);
 				ShowLog.i(TAG, toastError[17]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail502:
-				toast(msg.arg1, toastError[18]);
+				toast(msg.showToast, toastError[18]);
 				ShowLog.i(TAG, toastError[18]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail503:
-				toast(msg.arg1, toastError[19]);
+				toast(msg.showToast, toastError[19]);
 				ShowLog.i(TAG, toastError[19]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail504:
-				toast(msg.arg1, toastError[20]);
+				toast(msg.showToast, toastError[20]);
 				ShowLog.i(TAG, toastError[20]);
 				break;
 			case ErrorMsgEnum.EUnknownHost_msg:
-				toast(msg.arg1, toastError[21]);
+				toast(msg.showToast, toastError[21]);
 				ShowLog.i(TAG, toastError[21]);
 				break;
 			case ErrorMsgEnum.EUnknownService_msg:
-				toast(msg.arg1, toastError[21]);
+				toast(msg.showToast, toastError[21]);
 				ShowLog.i(TAG, toastError[22]);
 				break;
 			case ErrorMsgEnum.EUnsupportedEncoding_msg:
-				toast(msg.arg1, toastError[21]);
+				toast(msg.showToast, toastError[21]);
 				ShowLog.i(TAG, toastError[23]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail500:
-				toast(msg.arg1, toastError[24]);
+				toast(msg.showToast, toastError[24]);
 				ShowLog.i(TAG, toastError[24]);
 				break;
 			case ErrorMsgEnum.EHttpRequestFail405:
-				toast(msg.arg1, toastError[25]);
+				toast(msg.showToast, toastError[25]);
 				ShowLog.i(TAG, toastError[25]);
 				break;
 			}
 		} catch (ClassCastException e) {
-			toast(msg.arg1, toastError[13]);
+			toast(msg.showToast, toastError[13]);
 			ShowLog.i(TAG, toastError[13]);
 			ShowLog.e(TAG, "handleMessage--e--->" + CrashHandler.crashToString(e));
 		} catch (Exception e) {
@@ -205,14 +203,10 @@ public class CommonNetWorkExceptionToast {
 	 * @param strToastContent
 	 * @description:
 	 */
-	public void toast(int msg1, String strToastContent) {
+	public void toast(int showToast, String strToastContent) {
 		if (isShowError) {
-			if (msg1 > 0 && msg1 == ErrorMsgEnum.NetWorkMsg1WhithToast && !isInToastPeriod()) {
+			if (showToast == ErrorMsgEnum.NetWorkMsgWhithToast && !isInToastPeriod()) {
 				CommonToast.show(strToastContent);
-			} else {
-				if (msg1 < 0 && msg1 == ErrorMsgEnum.NetWorkMsg1WhithoutToast) {
-
-				}
 			}
 		}
 	}

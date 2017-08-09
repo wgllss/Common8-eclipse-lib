@@ -26,8 +26,8 @@ public class ErrorMsgEnum {
 	public static final int EParamUnInvalid_Msg = 0x1012; // 反射方法中传入参数不合法
 	public static final int EJsonParser_Msg = 0x1013; // Json解析错误
 	public static final int ENotDefine_Msg = 0x1014; // 未定义的错误
-	public static final int NetWorkMsg1WhithoutToast = -0x1015; // 不显示提示toast 默认值用负数 不显示
-	public static final int NetWorkMsg1WhithToast = 0x1016; // 显示提示toast 默认值用正数才显示
+	public static final int NetWorkMsgWhithoutToast = -0x1015; // 不显示提示toast 默认值用负数 不显示
+	public static final int NetWorkMsgWhithToast = -0x1016; // 显示提示toast 默认值用负数才显示
 	public static final int NetWorkThreadMsg2 = -0x1017; // 用于多线程，代表哪一个线程 默认值用负数
 	public static final int EHttpRequestFail400 = 0x1018; // 服务器异常400
 	public static final int EHttpRequestFail403 = 0x1019; // ip被封了 服务器异常403

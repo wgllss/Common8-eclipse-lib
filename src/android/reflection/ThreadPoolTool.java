@@ -12,10 +12,9 @@ import android.app.Activity;
 import android.application.CommonApplication;
 import android.http.HttpRequest;
 import android.interfaces.CommonNetWorkExceptionToast;
-import android.interfaces.HandleMessageListener;
+import android.interfaces.NetWorkCallListener;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.reflection.ExceptionEnum.GsonJsonParserException;
 import android.reflection.ExceptionEnum.HttpIOException;
 import android.reflection.ExceptionEnum.HttpProtocolException;
@@ -91,410 +90,158 @@ public class ThreadPoolTool {
 	}
 
 	/**
-	 * 异步处理http请求，显示toast异常提示
-	 * @author :Atar
-	 * @createTime:2014-8-18下午4:47:28
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param mHandleMessageListener 
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:
-	 */
-	public void setAsyncTask(int msg, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, null, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，显示toast异常提示 加入activity 生命周期
-	 * @author :Atar
-	 * @createTime:2015-9-21上午10:20:33
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg
-	 * @param mHandleMessageListener
-	 * @param activity 用于判断activity是否关闭情况下用到
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:
-	 */
-	public void setAsyncTask(int msg, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, activity, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，显示toast异常提示 ，区分哪一个线程
-	 * @author :Atar
-	 * @createTime:2014-10-8上午11:06:22
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param whichThread 同一请求Url  多次请求中的哪一次 ------->对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
-	 */
-	public void setAsyncTask(int msg, int whichThread, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, null, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，显示toast异常提示 ，区分哪一个线程 加入activity 生命周期
-	 * @author :Atar
-	 * @createTime:2014-10-8上午11:06:22
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param whichThread 同一请求Url  多次请求中的哪一次 ------->对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
-	 * @param activity 用于判断activity是否关闭情况下用到
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
-	 */
-	public void setAsyncTask(int msg, int whichThread, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, activity, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，不显示toast异常提示
-	 * @author :Atar
-	 * @createTime:2014-8-18下午4:48:08
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param mHandleMessageListener 
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
-	 */
-	public void setAsyncTaskWhitoutToast(int msg, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, null, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，不显示toast异常提示 加入activity 生命周期
-	 * @author :Atar
-	 * @createTime:2014-8-18下午4:48:08
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param mHandleMessageListener 
-	 * @param activity 用于判断activity是否关闭情况下用到
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
-	 */
-	public void setAsyncTaskWhitoutToast(int msg, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, activity, className, methodName, params,
-				null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，不显示toast异常提示 区分哪一个线程
-	 * @author :Atar
-	 * @createTime:2014-10-8上午11:06:22
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
-	 * @param whichThread  同一请求Url 多次请求中的哪一次 -------> 对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
-	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
-	 */
-	public void setAsyncTaskWhitoutToast(int msg, int whichThread, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, null, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，不显示toast异常提示 区分哪一个线程 加入activity 生命周期
-	 * @author :Atar
-	 * @createTime:2014-10-8上午11:06:22
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
-	 * @param whichThread  同一请求Url 多次请求中的哪一次 -------> 对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
-	 * @param activity 用于判断activity是否关闭情况下用到
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
-	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
-	 */
-	public void setAsyncTaskWhitoutToast(int msg, int whichThread, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, activity, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 多线程多异步请求 带Toast提示 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：0x1015
+	 * 多线程多异步请求 带Toast提示 
 	 * @author :Atar
 	 * @createTime:2014-12-12上午10:44:36
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
 	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
-	 * @param msg2 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg2
-	 * @param msg1 同一请求Url 但请求中参数2不相同---msg1值必须大于0----> 对应http返回时handler 中msg.arg1
-	 * @param mHandleMessageListener
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param mNetWorkCallListener
 	 * @param className
 	 * @param methodName
 	 * @param params
+	 * @param typeOfT Gson解析对象
 	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
 	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
-	 * 怎么区分时会用到 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：-0x1015 -0x1016 且 msg1值必须大于0
+	 * 怎么区分时会用到 
 	 */
-	public void setAsyncTask(int what, int msg2, int msg1, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(what, msg2, msg1, mHandleMessageListener, null, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTask(int what, NetWorkCallListener mNetWorkCallListener, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, -1, -1, ErrorMsgEnum.NetWorkMsgWhithToast, mNetWorkCallListener, null, className, methodName, params, typeOfT);
 	}
 
 	/**
-	 * 多线程多异步请求 带Toast提示 加入activity 生命周期 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：0x1015
+	 * 多线程多异步请求 带Toast提示 区分线程1
 	 * @author :Atar
 	 * @createTime:2014-12-12上午10:44:36
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
 	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
-	 * @param msg2 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg2
-	 * @param msg1 同一请求Url 但请求中参数2不相同---msg1值必须大于0----> 对应http返回时handler 中msg.arg1
-	 * @param mHandleMessageListener
-	 * @param activity 用于判断activity是否关闭情况下用到
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param mNetWorkCallListener
 	 * @param className
 	 * @param methodName
 	 * @param params
+	 * @param typeOfT Gson解析对象
 	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
 	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
-	 * 怎么区分时会用到 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：-0x1015 -0x1016 且 msg1值必须大于0
+	 * 怎么区分时会用到 
 	 */
-	public void setAsyncTask(int what, int msg2, int msg1, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params) {
-		HttpImplementTask task = new HttpImplementTask(what, msg2, msg1, mHandleMessageListener, activity, className, methodName, params, null);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTask(int what, int which1, NetWorkCallListener mNetWorkCallListener, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, which1, -1, ErrorMsgEnum.NetWorkMsgWhithToast, mNetWorkCallListener, null, className, methodName, params, typeOfT);
 	}
 
-	/*******************************************************************以下是带有 typeOfT Gson解析对象异步请求方法 可调任意同步请求类和方法********************************************************************/
-
 	/**
-	 * 异步处理http请求，显示toast异常提示
+	 * 多线程多异步请求 带Toast提示 区分线程1,线程2, 
 	 * @author :Atar
-	 * @createTime:2014-8-18下午4:47:28
+	 * @createTime:2014-12-12上午10:44:36
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param mHandleMessageListener 
+	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param mNetWorkCallListener
 	 * @param className
 	 * @param methodName
 	 * @param params
 	 * @param typeOfT Gson解析对象
-	 * @description:
+	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
+	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
+	 * 怎么区分时会用到 
 	 */
-	public void setAsyncTask(int msg, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, null, className, methodName, params, typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTask(int what, int which1, int which2, NetWorkCallListener mNetWorkCallListener, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, which1, which2, ErrorMsgEnum.NetWorkMsgWhithToast, mNetWorkCallListener, null, className, methodName, params, typeOfT);
 	}
 
 	/**
-	 * 异步处理http请求，显示toast异常提示 加入activity 生命周期
+	 * 多线程多异步请求 带Toast提示  加入activity 生命周期 
 	 * @author :Atar
-	 * @createTime:2015-9-21上午10:20:33
+	 * @createTime:2014-12-12上午10:44:36
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
-	 * @param msg
-	 * @param mHandleMessageListener
+	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param showToast 是否显示toast提示
+	 * @param mNetWorkCallListener 回调对象
 	 * @param activity 用于判断activity是否关闭情况下用到
 	 * @param className
 	 * @param methodName
 	 * @param params
 	 * @param typeOfT Gson解析对象
-	 * @description:
+	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
+	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
+	 * 怎么区分时会用到 
 	 */
-	public void setAsyncTask(int msg, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, activity, className, methodName, params,
-				typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTask(int what, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, -1, -1, ErrorMsgEnum.NetWorkMsgWhithToast, mNetWorkCallListener, activity, className, methodName, params, typeOfT);
 	}
 
 	/**
-	 * 异步处理http请求，显示toast异常提示 ，区分哪一个线程
+	 * 多线程多异步请求 带Toast提示 区分线程1, 加入activity 生命周期 
 	 * @author :Atar
-	 * @createTime:2014-10-8上午11:06:22
+	 * @createTime:2014-12-12上午10:44:36
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param whichThread 同一请求Url  多次请求中的哪一次 ------->对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @param typeOfT Gson解析对象
-	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
-	 */
-	public void setAsyncTask(int msg, int whichThread, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, null, className, methodName, params, typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，显示toast异常提示 ，区分哪一个线程 加入activity 生命周期
-	 * @author :Atar
-	 * @createTime:2014-10-8上午11:06:22
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param whichThread 同一请求Url  多次请求中的哪一次 ------->对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
+	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param showToast 是否显示toast提示
+	 * @param mNetWorkCallListener 回调对象
 	 * @param activity 用于判断activity是否关闭情况下用到
 	 * @param className
 	 * @param methodName
 	 * @param params
 	 * @param typeOfT Gson解析对象
-	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
+	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
+	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
+	 * 怎么区分时会用到 
 	 */
-	public void setAsyncTask(int msg, int whichThread, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithToast, mHandleMessageListener, activity, className, methodName, params, typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTask(int what, int which1, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, which1, -1, ErrorMsgEnum.NetWorkMsgWhithToast, mNetWorkCallListener, activity, className, methodName, params, typeOfT);
 	}
 
 	/**
-	 * 异步处理http请求，不显示toast异常提示
+	 * 多线程多异步请求 带Toast提示 区分线程1,线程2, 加入activity 生命周期 
 	 * @author :Atar
-	 * @createTime:2014-8-18下午4:48:08
+	 * @createTime:2014-12-12上午10:44:36
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param mHandleMessageListener 
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @param typeOfT Gson解析对象
-	 * @description:不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
-	 */
-	public void setAsyncTaskWhitoutToast(int msg, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, null, className, methodName, params, typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，不显示toast异常提示 加入activity 生命周期
-	 * @author :Atar
-	 * @createTime:2014-8-18下午4:48:08
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url -------> 对应http返回时handler 中msg.what
-	 * @param mHandleMessageListener 
+	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param showToast 是否显示toast提示
+	 * @param mNetWorkCallListener 回调对象
 	 * @param activity 用于判断activity是否关闭情况下用到
 	 * @param className
 	 * @param methodName
 	 * @param params
 	 * @param typeOfT Gson解析对象
-	 * @description:不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
+	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
+	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
+	 * 怎么区分时会用到 
 	 */
-	public void setAsyncTaskWhitoutToast(int msg, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, ErrorMsgEnum.NetWorkThreadMsg2, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, activity, className, methodName, params,
-				typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTask(int what, int which1, int which2, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, which1, which2, ErrorMsgEnum.NetWorkMsgWhithToast, mNetWorkCallListener, activity, className, methodName, params, typeOfT);
 	}
 
 	/**
-	 * 异步处理http请求，不显示toast异常提示 区分哪一个线程
+	 * 异步处理http请求，不显示toast异常提示 
 	 * @author :Atar
 	 * @createTime:2014-10-8上午11:06:22
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
 	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
-	 * @param whichThread  同一请求Url 多次请求中的哪一次 -------> 对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
-	 * @param className
-	 * @param methodName
-	 * @param params
-	 * @param typeOfT Gson解析对象
-	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
-	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
-	 */
-	public void setAsyncTaskWhitoutToast(int msg, int whichThread, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, null, className, methodName, params, typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
-	}
-
-	/**
-	 * 异步处理http请求，不显示toast异常提示 区分哪一个线程 加入activity 生命周期
-	 * @author :Atar
-	 * @createTime:2014-10-8上午11:06:22
-	 * @version:1.0.0
-	 * @modifyTime:
-	 * @modifyAuthor:
-	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
-	 * @param whichThread  同一请求Url 多次请求中的哪一次 -------> 对应http返回时handler 中msg.arg2
-	 * @param mHandleMessageListener
+	 * @param mNetWorkCallListener
 	 * @param activity 用于判断activity是否关闭情况下用到
 	 * @param className
 	 * @param methodName
@@ -503,50 +250,136 @@ public class ThreadPoolTool {
 	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
 	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
 	 */
-	public void setAsyncTaskWhitoutToast(int msg, int whichThread, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(msg, whichThread, ErrorMsgEnum.NetWorkMsg1WhithoutToast, mHandleMessageListener, activity, className, methodName, params, typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTaskWhitoutToast(int what, NetWorkCallListener mNetWorkCallListener, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, -1, -1, ErrorMsgEnum.NetWorkMsgWhithoutToast, mNetWorkCallListener, null, className, methodName, params, typeOfT);
 	}
 
 	/**
-	 * 多线程多异步请求 带Toast提示 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：0x1015
+	 * 异步处理http请求，不显示toast异常提示 区分线程1
 	 * @author :Atar
-	 * @createTime:2014-12-12上午10:44:36
+	 * @createTime:2014-10-8上午11:06:22
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
-	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
-	 * @param msg2 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg2
-	 * @param msg1 同一请求Url 但请求中参数2不相同---msg1值必须大于0----> 对应http返回时handler 中msg.arg1
-	 * @param mHandleMessageListener
+	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param mNetWorkCallListener
+	 * @param activity 用于判断activity是否关闭情况下用到
 	 * @param className
 	 * @param methodName
 	 * @param params
 	 * @param typeOfT Gson解析对象
-	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
-	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
-	 * 怎么区分时会用到 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：-0x1015 -0x1016 且 msg1值必须大于0
+	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
+	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
 	 */
-	public void setAsyncTask(int what, int msg2, int msg1, HandleMessageListener mHandleMessageListener, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(what, msg2, msg1, mHandleMessageListener, null, className, methodName, params, typeOfT);
-		if (exec != null) {
-			exec.execute(task);
-		}
+	public void setAsyncTaskWhitoutToast(int what, int which1, NetWorkCallListener mNetWorkCallListener, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, which1, -1, ErrorMsgEnum.NetWorkMsgWhithoutToast, mNetWorkCallListener, null, className, methodName, params, typeOfT);
 	}
 
 	/**
-	 * 多线程多异步请求 带Toast提示 加入activity 生命周期 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：0x1015
+	 * 异步处理http请求，不显示toast异常提示 区分线程1，线程2
+	 * @author :Atar
+	 * @createTime:2014-10-8上午11:06:22
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param mNetWorkCallListener
+	 * @param activity 用于判断activity是否关闭情况下用到
+	 * @param className
+	 * @param methodName
+	 * @param params
+	 * @param typeOfT Gson解析对象
+	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
+	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
+	 */
+	public void setAsyncTaskWhitoutToast(int what, int which1, int which2, NetWorkCallListener mNetWorkCallListener, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, which1, which2, ErrorMsgEnum.NetWorkMsgWhithoutToast, mNetWorkCallListener, null, className, methodName, params, typeOfT);
+	}
+
+	/**
+	 * 异步处理http请求，不显示toast异常提示  加入activity 生命周期
+	 * @author :Atar
+	 * @createTime:2014-10-8上午11:06:22
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param mNetWorkCallListener
+	 * @param activity 用于判断activity是否关闭情况下用到
+	 * @param className
+	 * @param methodName
+	 * @param params
+	 * @param typeOfT Gson解析对象
+	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
+	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
+	 */
+	public void setAsyncTaskWhitoutToast(int what, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, -1, -1, ErrorMsgEnum.NetWorkMsgWhithoutToast, mNetWorkCallListener, activity, className, methodName, params, typeOfT);
+	}
+
+	/**
+	 * 异步处理http请求，不显示toast异常提示 区分线程1, 加入activity 生命周期
+	 * @author :Atar
+	 * @createTime:2014-10-8上午11:06:22
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param mNetWorkCallListener
+	 * @param activity 用于判断activity是否关闭情况下用到
+	 * @param className
+	 * @param methodName
+	 * @param params
+	 * @param typeOfT Gson解析对象
+	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
+	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
+	 */
+	public void setAsyncTaskWhitoutToast(int what, int which1, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
+		setAsyncTask(what, which1, -1, ErrorMsgEnum.NetWorkMsgWhithoutToast, mNetWorkCallListener, activity, className, methodName, params, typeOfT);
+	}
+
+	/**
+	 * 异步处理http请求，不显示toast异常提示 区分线程1，线程2, 加入activity 生命周期
+	 * @author :Atar
+	 * @createTime:2014-10-8上午11:06:22
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param msg 代表哪一个请求Url 对应http返回时handler -------> 中msg.what
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param mNetWorkCallListener
+	 * @param activity 用于判断activity是否关闭情况下用到
+	 * @param className
+	 * @param methodName
+	 * @param params
+	 * @param typeOfT Gson解析对象
+	 * @description:如ListView 中多个item中有按钮请求，点击一个再点击一个，然后再点击一个。。。。list中的position 可用于 whichThread
+	 * 不显示toast异常提示应用场景，如一些后台循环请求，但此请求就是出问题，在当前界面又不需要给用户展示
+	 */
+	public void setAsyncTaskWhitoutToast(int what, int which1, int which2, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] params,
+			Type typeOfT) {
+		setAsyncTask(what, which1, which2, ErrorMsgEnum.NetWorkMsgWhithoutToast, mNetWorkCallListener, activity, className, methodName, params, typeOfT);
+	}
+
+	/**
+	 * 多线程多异步请求  总方法
 	 * @author :Atar
 	 * @createTime:2014-12-12上午10:44:36
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
 	 * @param what 代表哪一个请求Url------->对应http返回时handler 中msg.what
-	 * @param msg2 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg2
-	 * @param msg1 同一请求Url 但请求中参数2不相同---msg1值必须大于0----> 对应http返回时handler 中msg.arg1
-	 * @param mHandleMessageListener
+	 * @param which1 同一请求Url 但请求中参数1不相同-------> 对应http返回时handler 中msg.arg1
+	 * @param which2 同一请求Url 但请求中参数2不相同-------> 对应http返回时handler 中msg.arg2
+	 * @param showToast 是否显示toast提示
+	 * @param mNetWorkCallListener 回调对象
 	 * @param activity 用于判断activity是否关闭情况下用到
 	 * @param className
 	 * @param methodName
@@ -554,10 +387,11 @@ public class ThreadPoolTool {
 	 * @param typeOfT Gson解析对象
 	 * @description:应用场景，在同一界面，在网络不好情况下 同一请求地址 反回数据结构一样 请求参数1换了两个值请求 在没有返回情况下，用户又去操作，
 	 * 请求参数2换了两个值，那这4个请求 下次回来时 页面需要展示的数据为最后一次请求的数据，此时前几次请求回来的数据 不是用户想要的如果不区分导致数据错乱
-	 * 怎么区分时会用到 特别注意msg1 不能设置成 ErrorMsgEnum.NetWorkMsg1WhithoutToast 即值不能为：-0x1015 -0x1016 且 msg1值必须大于0
+	 * 怎么区分时会用到 
 	 */
-	public void setAsyncTask(int what, int msg2, int msg1, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] params, Type typeOfT) {
-		HttpImplementTask task = new HttpImplementTask(what, msg2, msg1, mHandleMessageListener, activity, className, methodName, params, typeOfT);
+	public void setAsyncTask(int what, int which1, int which2, int showToast, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] params,
+			Type typeOfT) {
+		HttpImplementTask task = new HttpImplementTask(what, which1, which2, showToast, mNetWorkCallListener, activity, className, methodName, params, typeOfT);
 		if (exec != null) {
 			exec.execute(task);
 		}
@@ -571,24 +405,25 @@ public class ThreadPoolTool {
 	 * @version: 1.0.0
 	 * @description:
 	 */
-	private class HttpImplementTask implements Runnable {
-		private HandleMessageListener mHandleMessageListener;
+	class HttpImplementTask implements Runnable {
+		private NetWorkCallListener mNetWorkCallListener;
 		private String reflectClassName;
 		private String ReflectMethodName;
 		private Object[] Reflectargs;
 		private int msgWhat = ErrorMsgEnum.ENotDefine_Msg;// 默认未知错误异常
-		private int msg2 = -1;// 默认不区分线程
-		private int msg1 = -1;
+		private NetWorkMsg msg;// = new NetWorkMsg(msgWhat, msg1, msg2, msg3, null);// 返回对像
+
 		private Type typeOfT;// 返回解析Gson用到
-		private Message msg = Message.obtain();
+
 		private boolean hasActivity;
 		private WeakReference<Activity> mWeakReference;// 弱引用 用于判断activity是否关闭情况下用到
 
-		public HttpImplementTask(int msg, int msg2, int msg1, HandleMessageListener mHandleMessageListener, Activity activity, String className, String methodName, Object[] args, Type typeOfT) {
-			msgWhat = msg;
-			this.msg2 = msg2;
-			this.msg1 = msg1;
-			this.mHandleMessageListener = mHandleMessageListener;
+		public HttpImplementTask(int msg, int msg1, int msg2, int showToast, NetWorkCallListener mNetWorkCallListener, Activity activity, String className, String methodName, Object[] args,
+				Type typeOfT) {
+			this.msgWhat = msg;
+			this.msg = new NetWorkMsg(msg, msg1, msg2, showToast, null);// 返回对像
+
+			this.mNetWorkCallListener = mNetWorkCallListener;
 			reflectClassName = className;
 			ReflectMethodName = methodName;
 			Reflectargs = args;
@@ -602,16 +437,12 @@ public class ThreadPoolTool {
 		public void run() {
 			if (!HttpRequest.IsUsableNetWork(CommonApplication.getContext())) {
 				msg.what = ErrorMsgEnum.EMobileNetUseless_Msg;
-				if (msg1 != ErrorMsgEnum.NetWorkMsg1WhithoutToast) {
-					msg1 = ErrorMsgEnum.NetWorkMsg1WhithToast;
-				}
-				msg.arg1 = msg1;
-				msg.arg2 = msg2;
+				msg.showToast = ErrorMsgEnum.NetWorkMsgWhithToast;
 				if (handler != null) {
 					handler.post(new Runnable() {
 						@Override
 						public void run() {
-							mCommonNetWorkExceptionToast.NetWorkHandlerMessage(msg, mHandleMessageListener);
+							mCommonNetWorkExceptionToast.NetWorkCall(msg, mNetWorkCallListener);
 						}
 					});
 				}
@@ -629,16 +460,8 @@ public class ThreadPoolTool {
 						objReutrn = gson.fromJson((String) objReutrn, typeOfT);
 					}
 				}
-				// if (objReutrn != null) {
 				msg.obj = objReutrn;
-				// } else {// 没有找到反射方法
-				// msgWhat = ErrorMsgEnum.EHttpIO_Msg;
-				// }
 			} catch (RefelectException e) {
-				if (msg1 != ErrorMsgEnum.NetWorkMsg1WhithoutToast) {
-					msg1 = ErrorMsgEnum.NetWorkMsg1WhithToast;
-				}
-				msg.arg1 = msg1;
 				// 22个异常捕获
 				if (e != null) {
 					if (e instanceof HttpProtocolException) {
@@ -696,10 +519,6 @@ public class ThreadPoolTool {
 				}
 				msg.obj = e.getMessage();
 			} catch (Exception e) {
-				if (msg1 != ErrorMsgEnum.NetWorkMsg1WhithoutToast) {
-					msg1 = ErrorMsgEnum.NetWorkMsg1WhithToast;
-				}
-				msg.arg1 = msg1;
 				if (e instanceof JsonSyntaxException) {
 					msgWhat = ErrorMsgEnum.EJsonParser_Msg;
 					msg.obj = e.getMessage();
@@ -716,12 +535,10 @@ public class ThreadPoolTool {
 			}
 			if (handler != null) {
 				msg.what = msgWhat;
-				msg.arg1 = msg1;
-				msg.arg2 = msg2;
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						mCommonNetWorkExceptionToast.NetWorkHandlerMessage(msg, mHandleMessageListener);
+						mCommonNetWorkExceptionToast.NetWorkCall(msg, mNetWorkCallListener);
 					}
 				});
 			}
@@ -739,14 +556,12 @@ public class ThreadPoolTool {
 	 * @description:
 	 */
 	public void toastException(int errorMsgWhat) {
-		final Message msg = Message.obtain();
-		msg.what = errorMsgWhat;
-		msg.arg1 = ErrorMsgEnum.NetWorkMsg1WhithToast;
+		final NetWorkMsg msg = new NetWorkMsg(errorMsgWhat, 0, 0, ErrorMsgEnum.NetWorkMsgWhithToast, null);
 		if (handler != null) {
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					mCommonNetWorkExceptionToast.NetWorkHandlerMessage(msg, null);
+					mCommonNetWorkExceptionToast.NetWorkCall(msg, null);
 				}
 			});
 		}
