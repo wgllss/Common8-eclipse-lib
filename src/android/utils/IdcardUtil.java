@@ -1,4 +1,4 @@
-package android.common;
+package android.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -7,11 +7,11 @@ import java.util.Date;
 
 import android.application.CommonApplication;
 import android.application.CrashHandler;
-import android.common.ShowLog;
 import android.content.Context;
 import android.http.HttpRequest;
 import android.os.Message;
 import android.reflection.ErrorMsgEnum;
+import android.utils.ShowLog;
 import android.widget.CommonToast;
 
 /**

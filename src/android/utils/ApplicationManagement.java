@@ -1,4 +1,4 @@
-package android.common;
+package android.utils;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;

@@ -4,8 +4,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
-import android.common.ShowLog;
+
 import android.content.Context;
+import android.utils.ShowLog;
 
 /**
  * 

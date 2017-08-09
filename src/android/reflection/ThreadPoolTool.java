@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.application.CommonApplication;
-import android.common.ShowLog;
 import android.http.HttpRequest;
 import android.interfaces.CommonNetWorkExceptionToast;
 import android.interfaces.HandleMessageListener;
@@ -42,6 +41,7 @@ import android.reflection.ExceptionEnum.ReflectionUnknownServiceException;
 import android.reflection.ExceptionEnum.ReflectionUnsupportedEncodingException;
 import android.reflection.ExceptionEnum.XmlIOException;
 import android.reflection.ExceptionEnum.XmlParserException;
+import android.utils.ShowLog;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;

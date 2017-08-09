@@ -1,4 +1,4 @@
-package android.common;
+package android.appconfig;
 
 import android.application.CommonApplication;
 import android.content.Context;
