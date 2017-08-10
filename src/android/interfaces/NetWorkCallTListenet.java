@@ -1,31 +1,19 @@
 /**
  * 
  */
-package android.reflection;
+package android.interfaces;
 
 /**
  *****************************************************************************************************************************************************************************
  * 
  * @author :Atar
- * @createTime:2011-8-9下午5:01:53
+ * @createTime:2017-8-10上午10:55:51
  * @version:1.0.0
  * @modifyTime:
  * @modifyAuthor:
  * @description:
  *****************************************************************************************************************************************************************************
  */
-public class NetWorkMsg {
-
-	public int what, arg1, arg2, showToast;
-	public Object obj;
-
-	public NetWorkMsg(int what, int arg1, int arg2, int showToast, Object obj) {
-		super();
-		this.what = what;
-		this.arg1 = arg1;
-		this.arg2 = arg2;
-		this.showToast = showToast;
-		this.obj = obj;
-	}
-
+public interface NetWorkCallTListenet<T> {
+	void NetWorkCall(T t);
 }
