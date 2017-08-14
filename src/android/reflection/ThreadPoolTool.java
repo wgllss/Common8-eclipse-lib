@@ -10,11 +10,10 @@ import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.application.CommonApplication;
+import android.common.CommonHandler;
 import android.http.HttpRequest;
 import android.interfaces.CommonNetWorkExceptionToast;
 import android.interfaces.NetWorkCallListener;
-import android.os.Handler;
-import android.os.Looper;
 import android.reflection.ExceptionEnum.GsonJsonParserException;
 import android.reflection.ExceptionEnum.HttpIOException;
 import android.reflection.ExceptionEnum.HttpProtocolException;
@@ -59,7 +58,6 @@ public class ThreadPoolTool {
 
 	private static final String TAG = ThreadPoolTool.class.getSimpleName();
 	private static ThreadPoolTool mInstance;// 异步请求单例模式
-	private final Handler handler = new Handler(Looper.getMainLooper());
 	private final CommonNetWorkExceptionToast mCommonNetWorkExceptionToast = new CommonNetWorkExceptionToast();
 
 	public static ThreadPoolTool getInstance() {
@@ -438,8 +436,8 @@ public class ThreadPoolTool {
 			if (!HttpRequest.IsUsableNetWork(CommonApplication.getContext())) {
 				msg.what = ErrorMsgEnum.EMobileNetUseless_Msg;
 				msg.showToast = ErrorMsgEnum.NetWorkMsgWhithToast;
-				if (handler != null) {
-					handler.post(new Runnable() {
+				if (CommonHandler.getInstatnce().getHandler() != null) {
+					CommonHandler.getInstatnce().getHandler().post(new Runnable() {
 						@Override
 						public void run() {
 							mCommonNetWorkExceptionToast.NetWorkCall(msg, mNetWorkCallListener);
@@ -533,9 +531,9 @@ public class ThreadPoolTool {
 				ShowLog.i(TAG, "---activity已经关闭---异步线程执行到此结束-------->");
 				return;
 			}
-			if (handler != null) {
+			if (CommonHandler.getInstatnce().getHandler() != null) {
 				msg.what = msgWhat;
-				handler.post(new Runnable() {
+				CommonHandler.getInstatnce().getHandler().post(new Runnable() {
 					@Override
 					public void run() {
 						mCommonNetWorkExceptionToast.NetWorkCall(msg, mNetWorkCallListener);
@@ -557,8 +555,8 @@ public class ThreadPoolTool {
 	 */
 	public void toastException(int errorMsgWhat) {
 		final NetWorkMsg msg = new NetWorkMsg(errorMsgWhat, 0, 0, ErrorMsgEnum.NetWorkMsgWhithToast, null);
-		if (handler != null) {
-			handler.post(new Runnable() {
+		if (CommonHandler.getInstatnce().getHandler() != null) {
+			CommonHandler.getInstatnce().getHandler().post(new Runnable() {
 				@Override
 				public void run() {
 					mCommonNetWorkExceptionToast.NetWorkCall(msg, null);
