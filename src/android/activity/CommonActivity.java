@@ -43,7 +43,7 @@ import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
  * @version:1.0.0
  * @modifyTime:
  * @modifyAuthor:
- * @description:
+ * @description: https://github.com/wgllss/Common8.git
  *****************************************************************************************************************************************************************************
  */
 @SuppressLint("ClickableViewAccessibility")

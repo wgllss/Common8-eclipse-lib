@@ -436,14 +436,7 @@ public class ThreadPoolTool {
 			if (!HttpRequest.IsUsableNetWork(CommonApplication.getContext())) {
 				msg.what = ErrorMsgEnum.EMobileNetUseless_Msg;
 				msg.showToast = ErrorMsgEnum.NetWorkMsgWhithToast;
-				if (CommonHandler.getInstatnce().getHandler() != null) {
-					CommonHandler.getInstatnce().getHandler().post(new Runnable() {
-						@Override
-						public void run() {
-							mCommonNetWorkExceptionToast.NetWorkCall(msg, mNetWorkCallListener);
-						}
-					});
-				}
+				CommonHandler.getInstatnce().NetWorkCall(mNetWorkCallListener, msg);
 				return;
 			}
 			try {
@@ -531,15 +524,8 @@ public class ThreadPoolTool {
 				ShowLog.i(TAG, "---activity已经关闭---异步线程执行到此结束-------->");
 				return;
 			}
-			if (CommonHandler.getInstatnce().getHandler() != null) {
-				msg.what = msgWhat;
-				CommonHandler.getInstatnce().getHandler().post(new Runnable() {
-					@Override
-					public void run() {
-						mCommonNetWorkExceptionToast.NetWorkCall(msg, mNetWorkCallListener);
-					}
-				});
-			}
+			msg.what = msgWhat;
+			CommonHandler.getInstatnce().NetWorkCall(mNetWorkCallListener, msg);
 		}
 	}
 

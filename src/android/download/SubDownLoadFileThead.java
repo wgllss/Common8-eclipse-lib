@@ -7,7 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 
-import android.os.Message;
+import android.common.CommonHandler;
 import android.util.Log;
 
 /**
@@ -23,8 +23,7 @@ import android.util.Log;
  * 
  */
 public class SubDownLoadFileThead extends Thread {
-	private final static String TAG = SubDownLoadFileThead.class
-			.getCanonicalName();
+	private final static String TAG = SubDownLoadFileThead.class.getCanonicalName();
 
 	private long startPos; // 开始下载的指针位置
 	private long endPos; // 结束下载的指针位置
@@ -41,37 +40,31 @@ public class SubDownLoadFileThead extends Thread {
 
 	private boolean isRange;// 是否支持断点续传
 
-	public SubDownLoadFileThead(DownLoadFileBean downLoadFileBean,
-			CountDownLatch latch, long startPos, long endPos, int threadId) {
+	public SubDownLoadFileThead(DownLoadFileBean downLoadFileBean, CountDownLatch latch, long startPos, long endPos, int threadId) {
 		this.isRange = true;
 		this.latch = latch;
 		this.startPos = startPos;
 		this.endPos = endPos;
 		this.downLoadFileBean = downLoadFileBean;
 		this.threadId = threadId;
-		this.mis = "[(" + downLoadFileBean.getFileSiteURL() + ")子线程:"
-				+ threadId + "]";
+		this.mis = "[(" + downLoadFileBean.getFileSiteURL() + ")子线程:" + threadId + "]";
 		try {
 			file = new RandomAccessFile(downLoadFileBean.getSaveFile(), "rw");
-			tempFile = new RandomAccessFile(downLoadFileBean.getTempFile(),
-					"rw");
+			tempFile = new RandomAccessFile(downLoadFileBean.getTempFile(), "rw");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public SubDownLoadFileThead(DownLoadFileBean downLoadFileBean,
-			CountDownLatch latch) {
+	public SubDownLoadFileThead(DownLoadFileBean downLoadFileBean, CountDownLatch latch) {
 		this.isRange = false;
 		this.latch = latch;
 		this.downLoadFileBean = downLoadFileBean;
 		this.threadId = 0;
-		this.mis = "[(" + downLoadFileBean.getFileSiteURL() + ")子线程:"
-				+ threadId + "]";
+		this.mis = "[(" + downLoadFileBean.getFileSiteURL() + ")子线程:" + threadId + "]";
 		try {
 			file = new RandomAccessFile(downLoadFileBean.getSaveFile(), "rw");
-			tempFile = new RandomAccessFile(downLoadFileBean.getTempFile(),
-					"rw");
+			tempFile = new RandomAccessFile(downLoadFileBean.getTempFile(), "rw");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -109,25 +102,20 @@ public class SubDownLoadFileThead extends Thread {
 			con.setReadTimeout(timeout);
 			if (startPos < endPos && isRange) {
 				// 设置下载数据的起止区间
-				con.setRequestProperty("Range", "bytes=" + startPos + "-"
-						+ endPos);
-				Log.d(TAG, "'" + downLoadFileBean.getFileSiteURL()
-						+ "'-Thread号:" + threadId + " 开始位置:" + startPos
-						+ ",结束位置：" + endPos);
+				con.setRequestProperty("Range", "bytes=" + startPos + "-" + endPos);
+				Log.d(TAG, "'" + downLoadFileBean.getFileSiteURL() + "'-Thread号:" + threadId + " 开始位置:" + startPos + ",结束位置：" + endPos);
 				file.seek(startPos);// 转到文件指针位置
 				// fc=file.getChannel();
 			}
 			int responseCode = con.getResponseCode();
 			// 判断http status是否为HTTP/1.1 206 Partial Content或者200 OK
-			if (responseCode == HttpURLConnection.HTTP_OK
-					|| responseCode == HttpURLConnection.HTTP_PARTIAL) {
+			if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_PARTIAL) {
 				inputStream = con.getInputStream();// 打开输入流
 				int len = 0;
 				byte[] b = new byte[1024];
 				long seek = 4 + 16 * threadId;
 
-				while (!downLoadFileBean.getPauseDownloadFlag()
-						&& (len = inputStream.read(b)) != -1) {
+				while (!downLoadFileBean.getPauseDownloadFlag() && (len = inputStream.read(b)) != -1) {
 					file.write(b, 0, len);// 写入临时数据文件,外性能需要提高
 					// MappedByteBuffer mbbo =
 					// fc.map(FileChannel.MapMode.READ_WRITE, 0, len);
@@ -138,16 +126,10 @@ public class SubDownLoadFileThead extends Thread {
 					startPos += len;
 					tempFile.seek(seek);
 					tempFile.writeLong(startPos);// 写入断点数据文件
-					if (downLoadFileBean.getHandler() != null
-							&& (count - myFileLength) > 1024) {
+					if (downLoadFileBean.getHandlerListener() != null && (count - myFileLength) > 1024) {
 						myFileLength = count;
-						int nPercent = (int) (startPos * 100 / downLoadFileBean
-								.getFileLength());
-						Message msg = downLoadFileBean.getHandler()
-								.obtainMessage(
-										DownLoadFileBean.DOWLOAD_FLAG_ING,
-										nPercent);
-						downLoadFileBean.getHandler().sendMessage(msg);
+						int nPercent = (int) (startPos * 100 / downLoadFileBean.getFileLength());
+						CommonHandler.getInstatnce().handerMessage(downLoadFileBean.getHandlerListener(), DownLoadFileBean.DOWLOAD_FLAG_ING, 0, 0, nPercent);
 					}
 				}
 
@@ -185,11 +167,9 @@ public class SubDownLoadFileThead extends Thread {
 	 */
 	private void setConHead(HttpURLConnection httpConnection) {
 		httpConnection.setRequestProperty("User-Agent", "java-download-core");// 设置头,也可以不做设置
-		httpConnection.setRequestProperty("Accept-Language",
-				"en-us,en;q=0.7,zh-cn;q=0.3");
+		httpConnection.setRequestProperty("Accept-Language", "en-us,en;q=0.7,zh-cn;q=0.3");
 		httpConnection.setRequestProperty("Accept-Encoding", "aa");
-		httpConnection.setRequestProperty("Accept-Charset",
-				"ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+		httpConnection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
 		httpConnection.setRequestProperty("Keep-Alive", "300");
 		httpConnection.setRequestProperty("Connection", "keep-alive");
 		httpConnection.setRequestProperty("Cache-Control", "max-age=0");

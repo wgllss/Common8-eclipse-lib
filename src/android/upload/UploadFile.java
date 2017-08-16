@@ -17,9 +17,9 @@ import java.net.UnknownServiceException;
 import java.util.Map;
 
 import android.appconfig.AppConfigSetting;
+import android.common.CommonHandler;
 import android.http.HttpRequest;
-import android.os.Handler;
-import android.os.Message;
+import android.interfaces.HandlerListener;
 import android.utils.ShowLog;
 
 /**
@@ -38,31 +38,31 @@ public class UploadFile {
 	public final static String TAG = UploadFile.class.getSimpleName();
 
 	/** 上传失败 */
-	public final static int UPLOAD_FLAG_FAIL = 0;
+	public final static int UPLOAD_FLAG_FAIL = 98765860;
 	/** 上传成功 */
-	public final static int UPLOAD_FLAG_SUCCESS = 1;
+	public final static int UPLOAD_FLAG_SUCCESS = 98765861;
 	/** 正在上传 */
-	public final static int UPLOAD_FLAG_ING = 2;
+	public final static int UPLOAD_FLAG_ING = 98765862;
 	/** 上传错误 */
-	public final static int UPLOAD_FLAG_ABORT = 3;
+	public final static int UPLOAD_FLAG_ABORT = 98765863;
 	/** 上传到web完毕，具体web返回。。。 */
-	public final static int UPLOAD_WEB_CALLBACK = 4;
+	public final static int UPLOAD_WEB_CALLBACK = 98765864;
 	/** 上传异常 */
-	public final static int UPLOAD_SERIVER_ERROR = 5;
+	public final static int UPLOAD_SERIVER_ERROR = 98765865;
 	/** 上传联网超时 */
-	public final static int UPLOAD_CONNNECT_TIME_OUT = 6;
+	public final static int UPLOAD_CONNNECT_TIME_OUT = 98765866;
 	/** 上传HTTP协议出错 */
-	public final static int UPLOAD_HTTP_ERROR = 7;
+	public final static int UPLOAD_HTTP_ERROR = 98765867;
 	/** 通信编码错误 */
-	public final static int UPLOAD_ENCODING_ERROR = 8;
+	public final static int UPLOAD_ENCODING_ERROR = 98765868;
 	/** 上传文件木有找到 */
-	public final static int UPLOAD_FILE_NOT_FIND = 9;
+	public final static int UPLOAD_FILE_NOT_FIND = 98765869;
 	/**上传文件有错误 */
-	public final static int UPLOAD_FILE_ERROR = 10;
+	public final static int UPLOAD_FILE_ERROR = 987658610;
 	/** 上传文件最大20M */
-	public final static int UPLOAD_FILE_MAX_20 = 11;
+	public final static int UPLOAD_FILE_MAX_20 = 987658611;
 	/** 上传文件返回code不为200 */
-	public final static int UPLOAD_FILE_RESPONSECODE = 12;
+	public final static int UPLOAD_FILE_RESPONSECODE = 987658612;
 
 	/**
 	 * 多文件按队列上传文件 主方法（可带参数）
@@ -79,7 +79,7 @@ public class UploadFile {
 	 * @description:
 	 */
 	@SuppressWarnings("unused")
-	public static void upLoad(String strServerPath, Map<String, String> params, Map<String, File> files, Handler mHandler, int whichUpload) {
+	public static void upLoad(String strServerPath, Map<String, String> params, Map<String, File> files, HandlerListener mHandlerListener, int whichUpload) {
 		String BOUNDARY = java.util.UUID.randomUUID().toString();
 		String PREFIX = "--", LINEND = "\r\n";
 		String MULTIPART_FROM_DATA = "multipart/form-data";
@@ -99,21 +99,7 @@ public class UploadFile {
 			httpURLConnection.setRequestProperty("Connection", "keep-alive");
 			httpURLConnection.setRequestProperty("Charsert", CHARSET);
 			httpURLConnection.setRequestProperty("Content-Type", MULTIPART_FROM_DATA + ";boundary=" + BOUNDARY);
-
-			/* 请求前带上cookie */
-			// if (UrlParamCommon.JSESSIONID != null && UrlParamCommon.JSESSIONID.length() > 0) {
-			// httpURLConnection.setRequestProperty("Cookie", CookieTool.getCookieStr("JSESSIONID"));
-			// ShowLog.i(TAG, "请求JSESSIONID---->" + CookieTool.getCookieStr("JSESSIONID"));
-			// }
-			// if (!"".equals(AppConfigSetting.getInstance().getUserId())) {
-			// httpURLConnection.addRequestProperty("Cookie", CookieTool.getCookieStr("tgbuser"));
-			// ShowLog.i(TAG, "请求tgbuser---->" + CookieTool.getCookieStr("tgbuser"));
-			// if (!"".equals(AppConfigSetting.getInstance().getPassword())) {
-			// httpURLConnection.addRequestProperty("Cookie", CookieTool.getCookieStr("tgbpwd"));
-			// ShowLog.i(TAG, "请求tgbpwd---->" + CookieTool.getCookieStr("tgbpwd"));
-			// }
-			// }
-			/* 请求前带上cookie */
+			// setCookie();
 			if (!"".equals(AppConfigSetting.getInstance().getToken())) {
 				httpURLConnection.addRequestProperty("token", AppConfigSetting.getInstance().getToken());
 				ShowLog.i(TAG, "请求token------->" + AppConfigSetting.getInstance().getToken());
@@ -149,11 +135,7 @@ public class UploadFile {
 					try {
 						Thread.sleep(500);// 由于目前上传接口中支持多次上传单张图片 防止多次导致服务器500 强行增加时间间隔
 					} catch (InterruptedException e) {
-						if (mHandler != null) {
-							Message msg = mHandler.obtainMessage(UPLOAD_FLAG_ING, 0, whichUpload);
-							mHandler.sendMessage(msg);
-						}
-						e.printStackTrace();
+						CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_FLAG_FAIL, 0, whichUpload, e.getMessage());
 					}
 					InputStream is = new FileInputStream(file.getValue());
 					byte[] buffer = new byte[1024];
@@ -167,10 +149,7 @@ public class UploadFile {
 						int percent = (int) m * 100 / nFileLength; // 上传进度值
 						if (percent >= 1) {
 							percent = 100;
-							if (mHandler != null) {
-								Message msg = mHandler.obtainMessage(UPLOAD_FLAG_ING, percent, whichUpload);
-								mHandler.sendMessage(msg);
-							}
+							CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_FLAG_ING, percent, whichUpload, null);
 						}
 					}
 					is.close();
@@ -182,18 +161,14 @@ public class UploadFile {
 				try {
 					Thread.sleep(400);// 由于目前上传接口中支持多次上传单张图片 防止多次导致服务器500 强行增加时间间隔
 				} catch (InterruptedException e) {
-					if (mHandler != null) {
-						Message msg = mHandler.obtainMessage(UPLOAD_FLAG_ING, 0, whichUpload);
-						mHandler.sendMessage(msg);
-					}
-					e.printStackTrace();
+					CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_FLAG_FAIL, 0, whichUpload, e.getMessage());
 				}
 				outStream.write(end_data);
 				outStream.flush();
 				// 得到响应码
-				int res = httpURLConnection.getResponseCode();
-				ShowLog.i(TAG, "res---->" + res);
-				if (res == HttpURLConnection.HTTP_OK) {
+				int resCode = httpURLConnection.getResponseCode();
+				ShowLog.i(TAG, "resCode---->" + resCode);
+				if (resCode == HttpURLConnection.HTTP_OK) {
 					InputStream mInputStream = null;
 					mInputStream = httpURLConnection.getInputStream();
 					InputStreamReader isr = null;
@@ -201,108 +176,80 @@ public class UploadFile {
 					BufferedReader br = new BufferedReader(isr);
 					String result = br.readLine();
 					ShowLog.i(TAG, "result:" + result);
-					if (mHandler != null) {
-						Message msg = mHandler.obtainMessage(UPLOAD_WEB_CALLBACK, 0, whichUpload, result);
-						mHandler.sendMessage(msg);
-					}
-					/* 请求回来保存cookie */
-					// // List<Cookie> cookies = ((DefaultHttpClient) httpURLConnection).getCookieStore().getCookies();
-					// String cookieskey = "Set-Cookie";
-					// Map<String, List<String>> maps = httpURLConnection.getHeaderFields();
-					// List<Cookie> cookies = httpURLConnection.getHeaderFields().getCookieStore().getCookies();
-					// List<String> coolist = maps.get(cookieskey);
-					// String userId = "";
-					// String userPassWord = "";
-					// String sessionId = "";
-					// for (int i = 0; i < cookies.size(); i++) {
-					// String cookieName = cookies.get(i).getName();
-					// if ("JSESSIONID".equals(cookieName)) {
-					// sessionId = cookies.get(i).getValue();
-					// AppConfigSetting.getInstance().saveSesstion(sessionId);
-					// ShowLog.d(TAG, "得到jsessionID--" + cookies.get(i).getValue());
-					// }
-					// if ("tgbuser".equals(cookieName)) {
-					// userId = cookies.get(i).getValue();
-					// ShowLog.d(TAG, "得到tgbuser--" + cookies.get(i).getValue());
-					// }
-					// if ("tgbpwd".equals(cookieName)) {
-					// userPassWord = cookies.get(i).getValue();
-					// ShowLog.d(TAG, "得到tgbpwd--" + cookies.get(i).getValue());
-					// }
-					// }
-					// if (!"".equals(userId)) {
-					// AppConfigSetting.getInstance().saveLoginUserId(userId);
-					// if (!"".equals(userPassWord)) {
-					// AppConfigSetting.getInstance().saveLoginPassword(userPassWord);
-					// }
-					// }
-					/* 请求回来保存cookie */
+					CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_WEB_CALLBACK, 0, whichUpload, result);
+					// saveCookie();
 				} else {
-					Message msg = mHandler.obtainMessage(UPLOAD_FILE_RESPONSECODE, res, whichUpload);
-					mHandler.sendMessage(msg);
+					CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_FILE_RESPONSECODE, resCode, whichUpload, null);
 				}
 				outStream.close();
 				httpURLConnection.disconnect();
 			}
 		} catch (SocketTimeoutException e) {// 联网超时
-			if (e != null) {
-				ShowLog.i(TAG, "---" + e.getMessage());
-			}
-
-			if (mHandler != null) {
-				Message msg = mHandler.obtainMessage(UPLOAD_CONNNECT_TIME_OUT, 0, whichUpload);
-				mHandler.sendMessage(msg);
-			}
+			CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_CONNNECT_TIME_OUT, 0, whichUpload, e.getMessage());
 		} catch (MalformedURLException e) {// 网络协议错误
-			if (e != null) {
-				ShowLog.i(TAG, "---" + e.getMessage());
-			}
-
-			if (mHandler != null) {
-				Message msg = mHandler.obtainMessage(UPLOAD_HTTP_ERROR, 0, whichUpload);
-				mHandler.sendMessage(msg);
-			}
-			e.printStackTrace();
+			CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_HTTP_ERROR, 0, whichUpload, e.getMessage());
 		} catch (UnknownServiceException e) {// 上传的服务端出错
-			if (e != null) {
-				ShowLog.i(TAG, "---" + e.getMessage());
-			}
-
-			if (mHandler != null) {
-				Message msg = mHandler.obtainMessage(UPLOAD_SERIVER_ERROR, 0, whichUpload);
-				mHandler.sendMessage(msg);
-			}
-			e.printStackTrace();
+			CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_SERIVER_ERROR, 0, whichUpload, e.getMessage());
 		} catch (UnsupportedEncodingException e) {// 通信编码错误
-			if (e != null) {
-				ShowLog.i(TAG, "---" + e.getMessage());
-			}
-
-			if (mHandler != null) {
-				Message msg = mHandler.obtainMessage(UPLOAD_ENCODING_ERROR, 0, whichUpload);
-				mHandler.sendMessage(msg);
-			}
-			e.printStackTrace();
+			CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_ENCODING_ERROR, 0, whichUpload, e.getMessage());
 		} catch (FileNotFoundException e) {// 上传文件木有找到
-			if (e != null) {
-				ShowLog.i(TAG, "---" + e.getMessage());
-			}
-
-			if (mHandler != null) {
-				Message msg = mHandler.obtainMessage(UPLOAD_FILE_NOT_FIND, 0, whichUpload);
-				mHandler.sendMessage(msg);
-			}
-			e.printStackTrace();
+			CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_FILE_NOT_FIND, 0, whichUpload, e.getMessage());
 		} catch (IOException e) {// 上传失败
-			if (e != null) {
-				ShowLog.i(TAG, "---" + e.getMessage());
-			}
+			CommonHandler.getInstatnce().handerMessage(mHandlerListener, UPLOAD_FLAG_FAIL, 0, whichUpload, e.getMessage());
+		} finally {
 
-			if (mHandler != null) {
-				Message msg = mHandler.obtainMessage(UPLOAD_FLAG_FAIL, 0, whichUpload);
-				mHandler.sendMessage(msg);
-			}
-			e.printStackTrace();
 		}
 	}
+
+	// private static void setCookie(HttpURLConnection httpURLConnection) {
+	/* 请求前带上cookie */
+	// if (UrlParamCommon.JSESSIONID != null && UrlParamCommon.JSESSIONID.length() > 0) {
+	// httpURLConnection.setRequestProperty("Cookie", CookieTool.getCookieStr("JSESSIONID"));
+	// ShowLog.i(TAG, "请求JSESSIONID---->" + CookieTool.getCookieStr("JSESSIONID"));
+	// }
+	// if (!"".equals(AppConfigSetting.getInstance().getUserId())) {
+	// httpURLConnection.addRequestProperty("Cookie", CookieTool.getCookieStr("tgbuser"));
+	// ShowLog.i(TAG, "请求tgbuser---->" + CookieTool.getCookieStr("tgbuser"));
+	// if (!"".equals(AppConfigSetting.getInstance().getPassword())) {
+	// httpURLConnection.addRequestProperty("Cookie", CookieTool.getCookieStr("tgbpwd"));
+	// ShowLog.i(TAG, "请求tgbpwd---->" + CookieTool.getCookieStr("tgbpwd"));
+	// }
+	// }
+	/* 请求前带上cookie */
+	// }
+
+	// private static void saveCookie(HttpURLConnection httpURLConnection) {
+	/* 请求回来保存cookie */
+	// // List<Cookie> cookies = ((DefaultHttpClient) httpURLConnection).getCookieStore().getCookies();
+	// String cookieskey = "Set-Cookie";
+	// Map<String, List<String>> maps = httpURLConnection.getHeaderFields();
+	// List<Cookie> cookies = httpURLConnection.getHeaderFields().getCookieStore().getCookies();
+	// List<String> coolist = maps.get(cookieskey);
+	// String userId = "";
+	// String userPassWord = "";
+	// String sessionId = "";
+	// for (int i = 0; i < cookies.size(); i++) {
+	// String cookieName = cookies.get(i).getName();
+	// if ("JSESSIONID".equals(cookieName)) {
+	// sessionId = cookies.get(i).getValue();
+	// AppConfigSetting.getInstance().saveSesstion(sessionId);
+	// ShowLog.d(TAG, "得到jsessionID--" + cookies.get(i).getValue());
+	// }
+	// if ("tgbuser".equals(cookieName)) {
+	// userId = cookies.get(i).getValue();
+	// ShowLog.d(TAG, "得到tgbuser--" + cookies.get(i).getValue());
+	// }
+	// if ("tgbpwd".equals(cookieName)) {
+	// userPassWord = cookies.get(i).getValue();
+	// ShowLog.d(TAG, "得到tgbpwd--" + cookies.get(i).getValue());
+	// }
+	// }
+	// if (!"".equals(userId)) {
+	// AppConfigSetting.getInstance().saveLoginUserId(userId);
+	// if (!"".equals(userPassWord)) {
+	// AppConfigSetting.getInstance().saveLoginPassword(userPassWord);
+	// }
+	// }
+	/* 请求回来保存cookie */
+	// }
 }

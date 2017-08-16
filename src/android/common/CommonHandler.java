@@ -3,14 +3,18 @@
  */
 package android.common;
 
+import android.interfaces.HandlerListener;
+import android.interfaces.NetWorkCallListener;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
+import android.reflection.NetWorkMsg;
 
 /**
  *****************************************************************************************************************************************************************************
- * 全局公共 只用一个唯一的 handler  处理异步到UI之间的通信
+ * 全局公共 只用一个唯一的 handler 加回调接口  处理异步到UI之间的通信
  * @author :Atar
- * @createTime:2012-8-11下午1:55:31
+ * @createTime:2011-8-11下午1:55:31
  * @version:1.0.0
  * @modifyTime:
  * @modifyAuthor:
@@ -31,5 +35,75 @@ public class CommonHandler {
 
 	public Handler getHandler() {
 		return handler;
+	}
+
+	/**
+	 * 模拟Handler 回调到主线程
+	 * @author :Atar
+	 * @createTime:2011-8-16下午1:39:11
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param mHandlerListener
+	 * @param msgWhat
+	 * @param msgArg1
+	 * @param msgArg2
+	 * @param obj
+	 * @description:
+	 */
+	public void handerMessage(final HandlerListener mHandlerListener, final int msgWhat, final int msgArg1, final int msgArg2, final Object obj) {
+		if (handler != null && mHandlerListener != null) {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					Message msg = handler.obtainMessage(msgWhat, msgArg1, msgArg2, obj);
+					mHandlerListener.onHandlerData(msg);
+				}
+			});
+		}
+	}
+
+	/**
+	 * 模拟Handler 回调到主线程
+	 * @author :Atar
+	 * @createTime:2011-8-16下午1:39:11
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param mHandlerListener
+	 * @param msg
+	 * @description:
+	 */
+	public void handerMessage(final HandlerListener mHandlerListener, final Message msg) {
+		if (handler != null && mHandlerListener != null) {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					mHandlerListener.onHandlerData(msg);
+				}
+			});
+		}
+	}
+
+	/**
+	 * 模拟Handler 回调网络接口到主线程
+	 * @author :Atar
+	 * @createTime:2011-8-16下午1:39:20
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param mNetWorkCallListener
+	 * @param msg
+	 * @description:
+	 */
+	public void NetWorkCall(final NetWorkCallListener mNetWorkCallListener, final NetWorkMsg msg) {
+		if (handler != null && mNetWorkCallListener != null) {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					mNetWorkCallListener.NetWorkCall(msg);
+				}
+			});
+		}
 	}
 }

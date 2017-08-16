@@ -10,7 +10,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import android.os.Handler;
+import android.common.CommonHandler;
+import android.interfaces.HandlerListener;
 import android.os.Message;
 import android.utils.FileUtils;
 
@@ -32,7 +33,7 @@ public class DownLoadFile {
 	 * @param zipName
 	 * @param dirStr
 	 */
-	public static void downLoad(String zipUrl, String zipName, String dirStr, Handler handler) {
+	public static void downLoad(String zipUrl, String zipName, String dirStr, HandlerListener HandlerListener) {
 		if (dirStr != null) {
 			FileUtils.createDir(dirStr);
 		}
@@ -42,7 +43,7 @@ public class DownLoadFile {
 		mDownLoadBean.setFileSaveName(zipName);// 设置本地文件名
 		mDownLoadBean.setFileSavePath(dirStr);// 设置本地文件路径
 		mDownLoadBean.setFileThreadNum(1);// 单线程下载
-		mDownLoadBean.setHandler(handler);// 下载通知消息
+		mDownLoadBean.setHandlerListenerr(HandlerListener);// 下载通知消息
 		mDownLoadBean.setPauseDownloadFlag(false);// 下载终止标志位设为false
 		DownLoadFileTask zipT = new DownLoadFileTask(mDownLoadBean, latch);
 		ExecutorService executor = null;
@@ -59,9 +60,7 @@ public class DownLoadFile {
 				Message msg = new Message();
 				if (mDownLoadBean != null) {
 					msg.what = mDownLoadBean.isDownSuccess() ? DownLoadFileBean.DOWLOAD_FLAG_SUCCESS : DownLoadFileBean.DOWLOAD_FLAG_FAIL;
-					if (mDownLoadBean.getHandler() != null) {
-						mDownLoadBean.getHandler().sendMessage(msg);
-					}
+					CommonHandler.getInstatnce().handerMessage(mDownLoadBean.getHandlerListener(), msg);
 					mDownLoadBean = null;
 				}
 			} else {
@@ -85,9 +84,7 @@ public class DownLoadFile {
 				// 发送停止下载消息
 				Message msg = new Message();
 				msg.what = DownLoadFileBean.DOWLOAD_FLAG_ABORT;
-				if (mDownLoadBean.getHandler() != null) {
-					mDownLoadBean.getHandler().sendMessage(msg);
-				}
+				CommonHandler.getInstatnce().handerMessage(mDownLoadBean.getHandlerListener(), msg);
 				mPauseLatch = null;
 				mDownLoadBean = null;
 			}

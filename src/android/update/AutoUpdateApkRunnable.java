@@ -18,16 +18,17 @@ import android.app.ProgressDialog;
 import android.appconfig.AppConfigModel;
 import android.appconfig.AppConfigSetting;
 import android.application.CrashHandler;
+import android.common.CommonHandler;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
+import android.interfaces.HandlerListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Message;
 import android.util.Xml;
 import android.utils.ApplicationManagement;
@@ -38,7 +39,7 @@ import android.widget.CommonToast;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("HandlerLeak")
-public class AutoUpdateApkRunnable implements Runnable {
+public class AutoUpdateApkRunnable implements Runnable, HandlerListener {
 
 	public static final String TAG = AutoUpdateApkRunnable.class.getSimpleName();
 
@@ -62,17 +63,15 @@ public class AutoUpdateApkRunnable implements Runnable {
 	private String apkServerPath;
 	/**下载到本地文件路径*/
 	private String downLoadLocalPath;
-	private Handler mhandler;
 
 	private UpdataInfo info;
 	private String localVersion;
 
-	public AutoUpdateApkRunnable(Context mContext, String serverVersionXmlPath, String apkServerPath, String downLoadLocalPath, Handler handler) {
+	public AutoUpdateApkRunnable(Context mContext, String serverVersionXmlPath, String apkServerPath, String downLoadLocalPath) {
 		this.mContext = mContext;
 		this.serverVersionXmlPath = serverVersionXmlPath;
 		this.apkServerPath = apkServerPath;
 		this.downLoadLocalPath = downLoadLocalPath;
-		this.mhandler = handler;
 		if (AppConfigModel.getInstance().getString(AppConfigModel.VERSION_KEY, "") != null && AppConfigModel.getInstance().getString(AppConfigModel.VERSION_KEY, "").length() > 0) {
 			localVersion = AppConfigModel.getInstance().getString(AppConfigModel.VERSION_KEY, "");
 		} else {
@@ -98,50 +97,38 @@ public class AutoUpdateApkRunnable implements Runnable {
 			if (info != null) {
 				AppConfigSetting.getInstance().putString(TAOGUBA_APP_DOWNLOAD_URL_KEY, apkServerPath + info.getUrl());
 				if (info.getVersion().compareToIgnoreCase(localVersion) > 0) {
-					handler.sendEmptyMessage(UPDATA_IS_NEW_VERSION);
-					if (mhandler != null) {
-						mhandler.sendEmptyMessage(UPDATA_IS_NEW_VERSION);
-					}
+					CommonHandler.getInstatnce().handerMessage(this, UPDATA_IS_NEW_VERSION, 0, 0, "");
 				} else {
-					handler.sendEmptyMessage(UPDATA_NO_NEW_VERSION);
-					if (mhandler != null) {
-						mhandler.sendEmptyMessage(UPDATA_NO_NEW_VERSION);
-					}
+					CommonHandler.getInstatnce().handerMessage(this, UPDATA_NO_NEW_VERSION, 0, 0, "");
 				}
 			}
 		} catch (Exception e) {
 			ShowLog.e(TAG, CrashHandler.crashToString(e));
-			handler.sendEmptyMessage(GET_UPDATA_INFO_TIME_OUT);
-			if (mhandler != null) {
-				mhandler.sendEmptyMessage(GET_UPDATA_INFO_TIME_OUT);
-			}
+			CommonHandler.getInstatnce().handerMessage(this, GET_UPDATA_INFO_TIME_OUT, 0, 0, "");
 		}
 	}
 
-	private Handler handler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-			case UPDATA_NO_NEW_VERSION:
-				ShowLog.i(TAG, "当前已是最新版本");
-				break;
-			case UPDATA_IS_NEW_VERSION:
-				showUpdataDialog();
-				break;
-			case GET_UPDATA_INFO_TIME_OUT:
-				ShowLog.i(TAG, "联网超时");
-				break;
-			case SD_CARD_NO_USEED:
-				ShowLog.i(TAG, "SD卡不可用");
-				CommonToast.show("SD卡不可用");
-			case DOWN_ERROR:
-				ShowLog.i(TAG, "下载失败");
-				CommonToast.show("下载失败");
-				break;
-			}
+	@Override
+	public void onHandlerData(Message msg) {
+		switch (msg.what) {
+		case UPDATA_NO_NEW_VERSION:
+			ShowLog.i(TAG, "当前已是最新版本");
+			break;
+		case UPDATA_IS_NEW_VERSION:
+			showUpdataDialog();
+			break;
+		case GET_UPDATA_INFO_TIME_OUT:
+			ShowLog.i(TAG, "联网超时");
+			break;
+		case SD_CARD_NO_USEED:
+			ShowLog.i(TAG, "SD卡不可用");
+			CommonToast.show("SD卡不可用");
+		case DOWN_ERROR:
+			ShowLog.i(TAG, "下载失败");
+			CommonToast.show("下载失败");
+			break;
 		}
-	};
+	}
 
 	private void showUpdataDialog() {
 		try {
@@ -170,9 +157,7 @@ public class AutoUpdateApkRunnable implements Runnable {
 						if (localVersion != null && localVersion.length() > 0 && info.getVersionmin().compareToIgnoreCase(localVersion) >= 0) {
 							ActivityManager.getActivityManager().exitApplication();
 						} else {
-							if (mhandler != null) {
-								mhandler.sendEmptyMessage(CANCLE_DOWNLOAD_APK);
-							}
+							CommonHandler.getInstatnce().handerMessage(AutoUpdateApkRunnable.this, CANCLE_DOWNLOAD_APK, 0, 0, "");
 						}
 					}
 				});
@@ -201,10 +186,7 @@ public class AutoUpdateApkRunnable implements Runnable {
 		pd.setCanceledOnTouchOutside(false);
 		pd.setOnKeyListener(keyListener);
 		if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			handler.sendEmptyMessage(SD_CARD_NO_USEED);
-			if (mhandler != null) {
-				mhandler.sendEmptyMessage(SD_CARD_NO_USEED);
-			}
+			CommonHandler.getInstatnce().handerMessage(this, SD_CARD_NO_USEED, 0, 0, "");
 		} else {
 			pd.show();
 			new Thread() {
@@ -229,10 +211,7 @@ public class AutoUpdateApkRunnable implements Runnable {
 							}
 						}
 					} catch (Exception e) {
-						handler.sendEmptyMessage(DOWN_ERROR);
-						if (mhandler != null) {
-							mhandler.sendEmptyMessage(DOWN_ERROR);
-						}
+						CommonHandler.getInstatnce().handerMessage(AutoUpdateApkRunnable.this, DOWN_ERROR, 0, 0, "");
 						ShowLog.e(TAG, CrashHandler.crashToString(e));
 					}
 				}

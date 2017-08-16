@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import android.os.Handler;
+import android.interfaces.HandlerListener;
 
 /**
  * 
@@ -15,10 +15,10 @@ import android.os.Handler;
  */
 public class DownLoadFileBean {
 
-	public final static int DOWLOAD_FLAG_FAIL = 0;
-	public final static int DOWLOAD_FLAG_SUCCESS = 1;
-	public final static int DOWLOAD_FLAG_ING = 2;
-	public final static int DOWLOAD_FLAG_ABORT = 3;
+	public final static int DOWLOAD_FLAG_FAIL = 98765850;
+	public final static int DOWLOAD_FLAG_SUCCESS = 98765851;
+	public final static int DOWLOAD_FLAG_ING = 98765852;
+	public final static int DOWLOAD_FLAG_ABORT = 98765853;
 
 	/** 文件长度 */
 	private long fileLength = -1;
@@ -39,7 +39,7 @@ public class DownLoadFileBean {
 	private Integer fileThreadNum;
 
 	/**下载回调handler*/
-	private Handler mSelfHandler;
+	private HandlerListener mHandlerListener;
 
 	private final static int FILE_THREAD_NUM = 1;
 
@@ -96,7 +96,6 @@ public class DownLoadFileBean {
 			// handle replace "+"->\\%20
 			this.fileSiteURL = this.fileSiteURL.replace("+", "%20");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// this.fileSiteURL = fileSiteURL;
@@ -211,18 +210,18 @@ public class DownLoadFileBean {
 
 	/**
 	 * 下载通知消息.进度/成功/失败
-	 * @param handler
+	 * @param HandlerListener
 	 */
-	public void setHandler(Handler handler) {
-		mSelfHandler = handler;
+	public void setHandlerListenerr(HandlerListener mHandlerListener) {
+		this.mHandlerListener = mHandlerListener;
 	}
 
 	/**
 	 * 下载通知消息.进度/成功/失败
 	 * @return
 	 */
-	public Handler getHandler() {
-		return mSelfHandler;
+	public HandlerListener getHandlerListener() {
+		return mHandlerListener;
 	}
 
 	/**
