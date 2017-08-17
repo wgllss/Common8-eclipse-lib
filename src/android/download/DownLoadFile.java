@@ -22,7 +22,7 @@ public class DownLoadFile {
 	public final static String DEFAULT_SUFFIX = ".suffix";
 
 	/** 下载Bean */
-	private static DownLoadFileBean mDownLoadBean;
+	private DownLoadFileBean mDownLoadBean;
 	/** 下载计数器,用于同步 */
 	private volatile static CountDownLatch mPauseLatch;
 
@@ -33,7 +33,7 @@ public class DownLoadFile {
 	 * @param zipName
 	 * @param dirStr
 	 */
-	public static void downLoad(String zipUrl, String zipName, String dirStr, HandlerListener HandlerListener) {
+	public void downLoad(String zipUrl, String zipName, String dirStr, HandlerListener HandlerListener) {
 		if (dirStr != null) {
 			FileUtils.createDir(dirStr);
 		}
@@ -72,7 +72,7 @@ public class DownLoadFile {
 	/**
 	 * 暂停下载
 	 */
-	public static void pauseDownload() {
+	public void pauseDownload() {
 		if (mDownLoadBean != null) {
 			mDownLoadBean.setPauseDownloadFlag(true);
 			mPauseLatch = new CountDownLatch(1);
@@ -101,7 +101,7 @@ public class DownLoadFile {
 	 *            本地存储地址
 	 * @return
 	 */
-	public static boolean downFileOnStream(String strUrl, String strFilePath) {
+	public boolean downFileOnStream(String strUrl, String strFilePath) {
 		OutputStream os = null;
 		try {
 			if (strFilePath != null) {

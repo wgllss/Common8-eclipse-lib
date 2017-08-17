@@ -42,7 +42,7 @@ public class DownLoadFileBean {
 	/** 多线程数下载 */
 	private Integer fileThreadNum;
 
-	/**下载回调handler*/
+	/**下载回调HandlerListener*/
 	private HandlerListener mHandlerListener;
 
 	private final static int FILE_THREAD_NUM = 1;
