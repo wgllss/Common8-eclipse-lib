@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import android.util.Log;
+import android.utils.ShowLog;
 
 public class DownLoadFileTask extends Thread {
 	private final static String TAG = DownLoadFileTask.class.getCanonicalName();
@@ -36,8 +36,7 @@ public class DownLoadFileTask extends Thread {
 	/** 提示信息 */
 	private String mis;
 
-	public DownLoadFileTask(DownLoadFileBean downLoadFileBean,
-			CountDownLatch selfLatch) {
+	public DownLoadFileTask(DownLoadFileBean downLoadFileBean, CountDownLatch selfLatch) {
 		this.selfLatch = selfLatch;
 		this.init(downLoadFileBean);
 	}
@@ -63,15 +62,14 @@ public class DownLoadFileTask extends Thread {
 				int threadNum = downLoadFileBean.getFileThreadNum();
 				ExecutorService exec = Executors.newFixedThreadPool(threadNum);
 				CountDownLatch latch = new CountDownLatch(threadNum);
-				Log.d(TAG, this.mis + "开始");
+				ShowLog.i(TAG, this.mis + "开始");
 
 				boolean isRange = downLoadFileBean.isRange();
 				if (isRange) {
 					for (int i = 0; i < threadNum; i++) {
 						// 开启子线程，并执行。
 						SubDownLoadFileThead thread;
-						thread = new SubDownLoadFileThead(downLoadFileBean,
-								latch, startPos[i], endPos[i], i);
+						thread = new SubDownLoadFileThead(downLoadFileBean, latch, startPos[i], endPos[i], i);
 						// childThreads[i] = thread;
 						exec.execute(thread);// 线程交给线程池做处理
 					}
@@ -97,8 +95,7 @@ public class DownLoadFileTask extends Thread {
 						// 下载成功,处理解析文件
 					}
 					long end = System.currentTimeMillis();
-					Log.d(TAG, msg + "下载'" + downLoadFileBean.getFileSaveName()
-							+ "'花时：" + (double) (end - start) / 1000 + "秒");
+					ShowLog.i(TAG, msg + "下载'" + downLoadFileBean.getFileSaveName() + "'花时：" + (double) (end - start) / 1000 + "秒");
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -122,12 +119,12 @@ public class DownLoadFileTask extends Thread {
 			if (file.exists()) {
 				long localFileSize = file.length();// 本地的文件大小
 				if (localFileSize < this.fileLength || tempFile.exists()) {// 小于的开始断点下载
-					Log.d(TAG, "重新断点续传..");
+					ShowLog.i(TAG, "重新断点续传..");
 					/** 线程数下载的大小 */
 					tempFileFos = new RandomAccessFile(tempFile, "rw");
 					// 从临时文件读取断点位置
 					int num = tempFileFos.readInt();
-					Log.d(TAG, "启动的线程数" + num);
+					ShowLog.i(TAG, "启动的线程数" + num);
 					for (int i = 0; i < threadNum; i++) {
 						startPos[i] = tempFileFos.readLong();// 开始的位置
 						endPos[i] = tempFileFos.readLong();// 结束的位置
@@ -147,8 +144,7 @@ public class DownLoadFileTask extends Thread {
 					// 创建子线程来负责下载数据，每段数据的起始位置为(threadLength * i)
 					startPos[i] = fileThreadSize * i;
 					/*
-					 * 设置子线程的终止位置，非最后一个线程即为(threadLength * (i + 1) - 1)
-					 * 最后一个线程的终止位置即为下载内容的长度
+					 * 设置子线程的终止位置，非最后一个线程即为(threadLength * (i + 1) - 1) 最后一个线程的终止位置即为下载内容的长度
 					 */
 					if (i == threadNum - 1) {
 						endPos[i] = this.fileLength;
@@ -162,7 +158,7 @@ public class DownLoadFileTask extends Thread {
 				}
 			}
 		} catch (Exception e) {
-			Log.e(TAG, this.mis + "异常：", e);
+			ShowLog.e(TAG, this.mis + "异常：", e);
 		} finally {
 			try {
 				if (tempFileFos != null) {
@@ -188,7 +184,7 @@ public class DownLoadFileTask extends Thread {
 		// 将有3次的重试机会.大概花时3s
 		while (curNum < tryNum && !connect) {
 			if (curNum > 0) {
-				Log.d(TAG, this.mis + "第" + curNum + "次重试连接:");
+				ShowLog.i(TAG, this.mis + "第" + curNum + "次重试连接:");
 				try {
 					Thread.sleep(waitTime * curNum);
 				} catch (InterruptedException e1) {
@@ -219,11 +215,10 @@ public class DownLoadFileTask extends Thread {
 				this.downLoadFileBean.setFileLength(fileLength);
 				return true;// 失败成功
 			}
-			Log.d(TAG, this.mis + "-请求返回responseCode=" + responseCode + ",连接失败");
+			ShowLog.i(TAG, this.mis + "-请求返回responseCode=" + responseCode + ",连接失败");
 
 		} catch (Exception e) {
-			Log.e(TAG, this.mis + "-请求连接" + downLoadFileBean.getFileSiteURL()
-					+ "异常:", e);
+			ShowLog.e(TAG, this.mis + "-请求连接" + downLoadFileBean.getFileSiteURL() + "异常:", e);
 		} finally {
 			if (httpConnection != null)
 				httpConnection.disconnect();// 关闭连接
@@ -242,11 +237,9 @@ public class DownLoadFileTask extends Thread {
 		// httpConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U;
 		// Linux i686; en-US; rv:1.9.0.3) Gecko/2008092510 Ubuntu/8.04 (hardy)
 		// Firefox/3.0.3");
-		httpConnection.setRequestProperty("Accept-Language",
-				"en-us,en;q=0.7,zh-cn;q=0.3");
+		httpConnection.setRequestProperty("Accept-Language", "en-us,en;q=0.7,zh-cn;q=0.3");
 		httpConnection.setRequestProperty("Accept-Encoding", "aa");
-		httpConnection.setRequestProperty("Accept-Charset",
-				"ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+		httpConnection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
 		httpConnection.setRequestProperty("Keep-Alive", "300");
 		httpConnection.setRequestProperty("Connection", "keep-alive");
 		// httpConnection.setRequestProperty("If-Modified-Since", "Fri, 02 Jan

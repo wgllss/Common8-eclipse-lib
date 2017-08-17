@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 
 import android.common.CommonHandler;
-import android.util.Log;
+import android.utils.ShowLog;
 
 /**
  * 
@@ -73,11 +73,11 @@ public class SubDownLoadFileThead extends Thread {
 	@Override
 	public void run() {
 		super.run();
-		Log.d(TAG, mis + "开始下载!");
+		ShowLog.i(TAG, mis + "开始下载!");
 		curNum = 0;
 		while (curNum < reTryNum && !isOK) {
 			if (curNum > 0) {
-				Log.d(TAG, mis + "第" + curNum + "次重试下载:");
+				ShowLog.i(TAG, mis + "第" + curNum + "次重试下载:");
 			}
 			downLoad();
 		}
@@ -103,7 +103,7 @@ public class SubDownLoadFileThead extends Thread {
 			if (startPos < endPos && isRange) {
 				// 设置下载数据的起止区间
 				con.setRequestProperty("Range", "bytes=" + startPos + "-" + endPos);
-				Log.d(TAG, "'" + downLoadFileBean.getFileSiteURL() + "'-Thread号:" + threadId + " 开始位置:" + startPos + ",结束位置：" + endPos);
+				ShowLog.i(TAG, "'" + downLoadFileBean.getFileSiteURL() + "'-Thread号:" + threadId + " 开始位置:" + startPos + ",结束位置：" + endPos);
 				file.seek(startPos);// 转到文件指针位置
 				// fc=file.getChannel();
 			}
@@ -139,7 +139,7 @@ public class SubDownLoadFileThead extends Thread {
 					// fc.close();
 			}
 		} catch (Exception e) {
-			Log.e(TAG, mis + "异常:" + e);// logger.debug
+			ShowLog.e(TAG, mis + "异常:" + e);// logger.debug
 		} finally {
 			try {
 				// 关闭连接
