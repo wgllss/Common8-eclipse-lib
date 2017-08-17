@@ -15,9 +15,13 @@ import android.interfaces.HandlerListener;
  */
 public class DownLoadFileBean {
 
+	/** 下载失败 */
 	public final static int DOWLOAD_FLAG_FAIL = 98765850;
+	/** 下载成功 */
 	public final static int DOWLOAD_FLAG_SUCCESS = 98765851;
+	/** 正在下载 */
 	public final static int DOWLOAD_FLAG_ING = 98765852;
+	/** 下载失败 */
 	public final static int DOWLOAD_FLAG_ABORT = 98765853;
 
 	/** 文件长度 */

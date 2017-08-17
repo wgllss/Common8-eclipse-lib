@@ -4,7 +4,6 @@
 package android.download;
 
 import android.interfaces.HandlerListener;
-import android.os.Handler;
 import android.reflection.ThreadPoolTool;
 import android.utils.ShowLog;
 
