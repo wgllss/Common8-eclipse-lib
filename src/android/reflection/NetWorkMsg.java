@@ -16,15 +16,15 @@ package android.reflection;
  */
 public class NetWorkMsg {
 
-	public int what, arg1, arg2, showToast;
+	public int what, arg1, arg2, arg3;
 	public Object obj;
 
-	public NetWorkMsg(int what, int arg1, int arg2, int showToast, Object obj) {
+	public NetWorkMsg(int what, int arg1, int arg2, int arg3, Object obj) {
 		super();
 		this.what = what;
 		this.arg1 = arg1;
 		this.arg2 = arg2;
-		this.showToast = showToast;
+		this.arg3 = arg3;
 		this.obj = obj;
 	}
 

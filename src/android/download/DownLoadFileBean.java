@@ -2,8 +2,10 @@ package android.download;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
+import android.app.Activity;
 import android.interfaces.HandlerListener;
 
 /**
@@ -43,20 +45,25 @@ public class DownLoadFileBean {
 	private Integer fileThreadNum;
 
 	/**下载回调HandlerListener*/
-	private HandlerListener mHandlerListener;
+	private HandlerListener handlerListener;
+	/**区分哪一下载，主要用于多个下载区分哪一个*/
+	private int which;
 
 	private final static int FILE_THREAD_NUM = 1;
 
 	private boolean isDownSuccess = false;
 
 	/**下载暂停标志*/
-	private static volatile boolean mAbortDownload;
+	private volatile boolean mAbortDownload;
 
 	/** 业务描述 */
 	private String bussMemo;
 
 	/**是否支持断点续传*/
 	private boolean isRange = true;
+
+	/**弱引用持有UI Activity*/
+	private WeakReference<Activity> weakReference;
 
 	public DownLoadFileBean() {
 		super();
@@ -159,7 +166,7 @@ public class DownLoadFileBean {
 	 */
 	public String getFileTempName() {
 		if (fileTempName == null) {
-			return ".tmp";
+			return ".tmp" + which;
 		}
 		return fileTempName;
 	}
@@ -216,8 +223,8 @@ public class DownLoadFileBean {
 	 * 下载通知消息.进度/成功/失败
 	 * @param HandlerListener
 	 */
-	public void setHandlerListenerr(HandlerListener mHandlerListener) {
-		this.mHandlerListener = mHandlerListener;
+	public void setHandlerListenerr(HandlerListener handlerListener) {
+		this.handlerListener = handlerListener;
 	}
 
 	/**
@@ -225,7 +232,7 @@ public class DownLoadFileBean {
 	 * @return
 	 */
 	public HandlerListener getHandlerListener() {
-		return mHandlerListener;
+		return handlerListener;
 	}
 
 	/**
@@ -241,6 +248,26 @@ public class DownLoadFileBean {
 	 * @return
 	 */
 	public boolean getPauseDownloadFlag() {
+		if (weakReference != null && weakReference.get() != null && weakReference.get().isFinishing()) {
+			mAbortDownload = true;
+			DownLoadFileManager.getInstance().pauseDownload(which);
+		}
 		return mAbortDownload;
+	}
+
+	public int getWhich() {
+		return which;
+	}
+
+	public void setWhich(int whcih) {
+		this.which = whcih;
+	}
+
+	public WeakReference<Activity> getWeakReference() {
+		return weakReference;
+	}
+
+	public void setWeakReference(WeakReference<Activity> weakReference) {
+		this.weakReference = weakReference;
 	}
 }

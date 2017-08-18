@@ -129,7 +129,9 @@ public class SubDownLoadFileThead extends Thread {
 					if (downLoadFileBean.getHandlerListener() != null && (count - myFileLength) > 1024) {
 						myFileLength = count;
 						int nPercent = (int) (startPos * 100 / downLoadFileBean.getFileLength());
-						CommonHandler.getInstatnce().handerMessage(downLoadFileBean.getHandlerListener(), DownLoadFileBean.DOWLOAD_FLAG_ING, 0, 0, nPercent);
+						if (downLoadFileBean.getWeakReference() != null && downLoadFileBean.getWeakReference().get() != null && !downLoadFileBean.getWeakReference().get().isFinishing()) {
+							CommonHandler.getInstatnce().handerMessage(downLoadFileBean.getHandlerListener(), downLoadFileBean.getWhich(), 0, DownLoadFileBean.DOWLOAD_FLAG_ING, nPercent);
+						}
 					}
 				}
 

@@ -12,10 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.application.CommonApplication;
 import android.content.Context;
 import android.content.Intent;
@@ -550,6 +553,7 @@ public class FileUtils {
 	}
 
 	/* 判断文件MimeType的method */
+	@SuppressLint("DefaultLocale")
 	private static String getMIMEType(File f) {
 		String type = "";
 		String fName = f.getName();
@@ -897,5 +901,55 @@ public class FileUtils {
 			}
 		}
 		return size;
+	}
+
+	/**
+	 * 获取文件长度
+	 * @author :Atar
+	 * @createTime:2011-8-18下午4:12:55
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param fileUrl
+	 * @return
+	 * @description:
+	 */
+	public static int getUrlFileSize(String fileUrl) {
+		int fileLength = 0;
+		HttpURLConnection httpConnection = null;
+		try {
+			URL url = new URL(fileUrl);
+			httpConnection = (HttpURLConnection) url.openConnection();
+			httpConnection.setRequestProperty("User-Agent", "java-download-core");// 设置头,也可以不做设置
+			// httpConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U;
+			// Linux i686; en-US; rv:1.9.0.3) Gecko/2008092510 Ubuntu/8.04 (hardy)
+			// Firefox/3.0.3");
+			httpConnection.setRequestProperty("Accept-Language", "en-us,en;q=0.7,zh-cn;q=0.3");
+			httpConnection.setRequestProperty("Accept-Encoding", "aa");
+			httpConnection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+			httpConnection.setRequestProperty("Keep-Alive", "300");
+			httpConnection.setRequestProperty("Connection", "keep-alive");
+			// httpConnection.setRequestProperty("If-Modified-Since", "Fri, 02 Jan
+			// 2009 17:00:05 GMT");
+			// httpConnection.setRequestProperty("If-None-Match",
+			// "\"1261d8-4290-df64d224\"");
+			httpConnection.setRequestProperty("Cache-Control", "max-age=0");
+			// 设置连接超时时间为10000ms
+			httpConnection.setConnectTimeout(10000);
+			// 设置读取数据超时时间为10000ms
+			httpConnection.setReadTimeout(10000);
+			httpConnection.connect();
+			int responseCode = httpConnection.getResponseCode();
+			if (responseCode <= 400) {
+				fileLength = httpConnection.getContentLength();// 设置下载长度
+			}
+
+		} catch (Exception e) {
+			ShowLog.e(TAG, "异常:", e);
+		} finally {
+			if (httpConnection != null)
+				httpConnection.disconnect();// 关闭连接
+		}
+		return fileLength;
 	}
 }

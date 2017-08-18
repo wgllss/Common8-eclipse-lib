@@ -3,16 +3,18 @@
  */
 package android.common;
 
+import android.application.CrashHandler;
 import android.interfaces.HandlerListener;
 import android.interfaces.NetWorkCallListener;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.reflection.NetWorkMsg;
+import android.utils.ShowLog;
 
 /**
  *****************************************************************************************************************************************************************************
- * 全局公共 只用一个唯一的 handler 加回调接口  处理异步到UI之间的通信
+ * 全局公共 只用一个唯一的 handler 加回调接口  处理异步线程到UI之间的通信
  * @author :Atar
  * @createTime:2011-8-11下午1:55:31
  * @version:1.0.0
@@ -22,6 +24,7 @@ import android.reflection.NetWorkMsg;
  *****************************************************************************************************************************************************************************
  */
 public class CommonHandler {
+	private String TAG = CommonHandler.class.getSimpleName();
 
 	private static CommonHandler instance;
 	private Handler handler = new Handler(Looper.getMainLooper());
@@ -56,8 +59,12 @@ public class CommonHandler {
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					Message msg = handler.obtainMessage(msgWhat, msgArg1, msgArg2, obj);
-					mHandlerListener.onHandlerData(msg);
+					try {
+						Message msg = handler.obtainMessage(msgWhat, msgArg1, msgArg2, obj);
+						mHandlerListener.onHandlerData(msg);
+					} catch (Exception e) {
+						ShowLog.e(TAG, "handerMessage-->" + CrashHandler.crashToString(e));
+					}
 				}
 			});
 		}
@@ -79,7 +86,11 @@ public class CommonHandler {
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					mHandlerListener.onHandlerData(msg);
+					try {
+						mHandlerListener.onHandlerData(msg);
+					} catch (Exception e) {
+						ShowLog.e(TAG, "handerMessage-->" + CrashHandler.crashToString(e));
+					}
 				}
 			});
 		}
@@ -101,7 +112,11 @@ public class CommonHandler {
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					mNetWorkCallListener.NetWorkCall(msg);
+					try {
+						mNetWorkCallListener.NetWorkCall(msg);
+					} catch (Exception e) {
+						ShowLog.e(TAG, "NetWorkCall-->" + CrashHandler.crashToString(e));
+					}
 				}
 			});
 		}

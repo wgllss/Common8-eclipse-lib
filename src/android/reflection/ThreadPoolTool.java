@@ -435,7 +435,7 @@ public class ThreadPoolTool {
 		public void run() {
 			if (!HttpRequest.IsUsableNetWork(CommonApplication.getContext())) {
 				msg.what = ErrorMsgEnum.EMobileNetUseless_Msg;
-				msg.showToast = ErrorMsgEnum.NetWorkMsgWhithToast;
+				msg.arg3 = ErrorMsgEnum.NetWorkMsgWhithToast;
 				CommonHandler.getInstatnce().NetWorkCall(mNetWorkCallListener, msg);
 				return;
 			}
