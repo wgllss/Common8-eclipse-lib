@@ -147,7 +147,7 @@ public class DownLoadFileManager {
 					File file = new File(strDownloadDir + File.separator + strDownloadFileName);
 					File tempFile = new File(strDownloadDir + File.separator + strDownloadFileName + ".tmp" + which);
 					if (file.exists() && !tempFile.exists()) {
-						CommonHandler.getInstatnce().handerMessage(handlerListener, which, 0, DownLoadFileBean.DOWLOAD_FLAG_SUCCESS, 100);
+						CommonHandler.getInstatnce().handerMessage(handlerListener, DownLoadFileBean.DOWLOAD_FLAG_SUCCESS, 0, which, 100);
 					} else {
 						if (file.exists()) {
 							long tempSize = file.length();
@@ -156,7 +156,7 @@ public class DownLoadFileManager {
 							if (fileLength != 0) {
 								nPercent = (int) (tempSize * 100 / fileLength);
 							}
-							CommonHandler.getInstatnce().handerMessage(handlerListener, which, 0, DownLoadFileBean.DOWLOAD_FLAG_ING, nPercent);
+							CommonHandler.getInstatnce().handerMessage(handlerListener, DownLoadFileBean.DOWLOAD_FLAG_ING, 0, which, nPercent);
 						}
 					}
 				} catch (Exception e) {
