@@ -53,7 +53,7 @@ public class DownLoadFileManager {
 	 * @param HandlerListener 下载回调监听
 	 * @param whcih 哪一个下载，用于同时下载多个 which值必须不相同 接收时为 msg.arg2
 	 * @param fileUrl 文件url
-	 * @param fileThreadNum 单个文件 多线程数下载 可减少单个文件下载时间
+	 * @param fileThreadNum 单个文件 多线程数下载 可减少单个文件下载时间 注：如果不是专作如迅雷下载那类，最好不要把fileThreadNum 设置超过3，一般1就可以了
 	 * @param strDownloadFileName 本地文件名
 	 * @param strDownloadDir 本地文件目录
 	 * @description:
