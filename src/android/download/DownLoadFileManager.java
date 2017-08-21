@@ -49,29 +49,58 @@ public class DownLoadFileManager {
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
-	 * @param Activity:弱引用持有UI Activity 在activity finishi时自动停止下载
+	 * @param Activity:弱引用持有UI Activity 在activity finish时自动停止下载
 	 * @param HandlerListener 下载回调监听
-	 * @param whcih 哪一个下载，用于同时下载多个 which值必须不相同
+	 * @param whcih 哪一个下载，用于同时下载多个 which值必须不相同 接收时为 msg.arg2
+	 * @param fileUrl 文件url
+	 * @param fileThreadNum 单个文件 多线程数下载 可减少单个文件下载时间
+	 * @param strDownloadFileName 本地文件名
+	 * @param strDownloadDir 本地文件目录
+	 * @description:
+	 */
+	public void downLoad(final Activity activity, final HandlerListener handlerListener, final int which, final String fileUrl, final int fileThreadNum, final String strDownloadFileName,
+			final String strDownloadDir) {
+		try {
+			if (map != null && !map.containsKey(Integer.toString(which))) {
+				ThreadPoolTool.getInstance().execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							DownLoadFile mDownLoadFile = new DownLoadFile();
+							if (map != null) {
+								map.put(Integer.toString(which), new WeakReference<DownLoadFile>(mDownLoadFile));
+							}
+							mDownLoadFile.downLoad(activity, handlerListener, which, fileUrl, fileThreadNum, strDownloadFileName, strDownloadDir);
+						} catch (Exception e) {
+							ShowLog.e(TAG, "downLoad-->" + CrashHandler.crashToString(e));
+						}
+					}
+				});
+			} else {
+				ShowLog.i(TAG, "该" + which + "号下载 已经在下载");
+			}
+		} catch (Exception e) {
+			ShowLog.e(TAG, "downLoad-->" + CrashHandler.crashToString(e));
+		}
+	}
+
+	/**
+	 * 下载文件
+	 * @author :Atar
+	 * @createTime:2011-8-18下午1:59:19
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param Activity:弱引用持有UI Activity 在activity finish时自动停止下载
+	 * @param HandlerListener 下载回调监听
+	 * @param whcih 哪一个下载，用于同时下载多个 which值必须不相同 接收时为 msg.arg2
 	 * @param fileUrl 文件url
 	 * @param strDownloadFileName 本地文件名
 	 * @param strDownloadDir 本地文件目录
 	 * @description:
 	 */
 	public void downLoad(final Activity activity, final HandlerListener handlerListener, final int which, final String fileUrl, final String strDownloadFileName, final String strDownloadDir) {
-		ThreadPoolTool.getInstance().execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					DownLoadFile mDownLoadFile = new DownLoadFile();
-					if (map != null) {
-						map.put(Integer.toString(which), new WeakReference<DownLoadFile>(mDownLoadFile));
-					}
-					mDownLoadFile.downLoad(activity, handlerListener, which, fileUrl, strDownloadFileName, strDownloadDir);
-				} catch (Exception e) {
-					ShowLog.e(TAG, "handerMessage-->" + CrashHandler.crashToString(e));
-				}
-			}
-		});
+		downLoad(activity, handlerListener, which, fileUrl, 1, strDownloadFileName, strDownloadDir);
 	}
 
 	/**
@@ -81,7 +110,7 @@ public class DownLoadFileManager {
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
-	 * @param which 哪一个下载，用于同时下载多个
+	 * @param which 哪一个下载，用于同时下载多个 接收时为 msg.arg2
 	 * @description:
 	 */
 	public void pauseDownload(final int which) {
@@ -94,7 +123,7 @@ public class DownLoadFileManager {
 						mDownLoadFile.pauseDownload();
 					}
 				} catch (Exception e) {
-					ShowLog.e(TAG, "handerMessage-->" + CrashHandler.crashToString(e));
+					ShowLog.e(TAG, "pauseDownload-->" + CrashHandler.crashToString(e));
 				}
 			}
 		});
@@ -153,7 +182,7 @@ public class DownLoadFileManager {
 				map.remove(Integer.toString(which));
 			}
 		} catch (Exception e) {
-			ShowLog.e(TAG, "handerMessage-->" + CrashHandler.crashToString(e));
+			ShowLog.e(TAG, "remove-->" + CrashHandler.crashToString(e));
 		}
 	}
 }

@@ -96,6 +96,7 @@ public class DownLoadFileTask extends Thread {
 					}
 					long end = System.currentTimeMillis();
 					ShowLog.i(TAG, msg + "下载'" + downLoadFileBean.getFileSaveName() + "'花时：" + (double) (end - start) / 1000 + "秒");
+					DownLoadFileManager.getInstance().remove(downLoadFileBean.getWhich());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

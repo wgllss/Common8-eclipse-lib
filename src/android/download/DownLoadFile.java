@@ -37,7 +37,7 @@ public class DownLoadFile {
 	 * @param strDownloadDir 本地文件目录
 	 * @description:
 	 */
-	public void downLoad(final Activity activity, HandlerListener handlerListener, int which, String fileUrl, String strDownloadFileName, String strDownloadDir) {
+	public void downLoad(final Activity activity, HandlerListener handlerListener, int which, String fileUrl, int fileThreadNum, String strDownloadFileName, String strDownloadDir) {
 		if (strDownloadDir != null) {
 			FileUtils.createDir(strDownloadDir);
 		}
@@ -49,7 +49,7 @@ public class DownLoadFile {
 		mDownLoadBean.setFileSiteURL(fileUrl);// 设置远程文件地址
 		mDownLoadBean.setFileSaveName(strDownloadFileName);// 设置本地文件名
 		mDownLoadBean.setFileSavePath(strDownloadDir);// 设置本地文件路径
-		mDownLoadBean.setFileThreadNum(1);// 单线程下载
+		mDownLoadBean.setFileThreadNum(fileThreadNum);// fileThreadNum 个线程下载
 		mDownLoadBean.setHandlerListenerr(handlerListener);// 下载通知消息
 		mDownLoadBean.setPauseDownloadFlag(false);// 下载终止标志位设为false
 		mDownLoadBean.setWhich(which);// 设置哪一个下载 区别多个同时下载
@@ -74,8 +74,8 @@ public class DownLoadFile {
 						return;
 					}
 
-					msg.what = mDownLoadBean.getWhich();
-					msg.arg2 = mDownLoadBean.isDownSuccess() ? DownLoadFileBean.DOWLOAD_FLAG_SUCCESS : DownLoadFileBean.DOWLOAD_FLAG_FAIL;
+					msg.arg2 = mDownLoadBean.getWhich();
+					msg.what = mDownLoadBean.isDownSuccess() ? DownLoadFileBean.DOWLOAD_FLAG_SUCCESS : DownLoadFileBean.DOWLOAD_FLAG_FAIL;
 					CommonHandler.getInstatnce().handerMessage(mDownLoadBean.getHandlerListener(), msg);
 					DownLoadFileManager.getInstance().remove(msg.what);
 					mDownLoadBean = null;
@@ -105,6 +105,7 @@ public class DownLoadFile {
 				e.printStackTrace();
 			} finally {
 				if (mDownLoadBean.getWeakReference() != null && mDownLoadBean.getWeakReference().get() != null && mDownLoadBean.getWeakReference().get().isFinishing()) {
+					DownLoadFileManager.getInstance().remove(mDownLoadBean.getWhich());
 					ShowLog.i(TAG, "---activity已经关闭---异步线程执行到此结束-------->");
 					mPauseLatch = null;
 					mDownLoadBean = null;
@@ -113,8 +114,8 @@ public class DownLoadFile {
 
 				// 发送停止下载消息
 				Message msg = new Message();
-				msg.what = mDownLoadBean.getWhich();
-				msg.arg2 = DownLoadFileBean.DOWLOAD_FLAG_ABORT;
+				msg.arg2 = mDownLoadBean.getWhich();
+				msg.what = DownLoadFileBean.DOWLOAD_FLAG_ABORT;
 				CommonHandler.getInstatnce().handerMessage(mDownLoadBean.getHandlerListener(), msg);
 				mPauseLatch = null;
 				mDownLoadBean = null;

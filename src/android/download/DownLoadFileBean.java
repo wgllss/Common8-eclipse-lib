@@ -41,8 +41,8 @@ public class DownLoadFileBean {
 	/** 临时文件 */
 	private String fileTempName;
 
-	/** 多线程数下载 */
-	private Integer fileThreadNum;
+	/** 单个文件 多线程数下载 */
+	private int fileThreadNum;
 
 	/**下载回调HandlerListener*/
 	private HandlerListener handlerListener;
@@ -146,8 +146,8 @@ public class DownLoadFileBean {
 	/**
 	 * @return the fileThreadNum
 	 */
-	public Integer getFileThreadNum() {
-		if (fileThreadNum == null) {
+	public int getFileThreadNum() {
+		if (fileThreadNum == 0) {
 			return FILE_THREAD_NUM;
 		}
 		return fileThreadNum;

@@ -1,5 +1,6 @@
 package android.download;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -128,9 +129,15 @@ public class SubDownLoadFileThead extends Thread {
 					tempFile.writeLong(startPos);// 写入断点数据文件
 					if (downLoadFileBean.getHandlerListener() != null && (count - myFileLength) > 1024) {
 						myFileLength = count;
-						int nPercent = (int) (startPos * 100 / downLoadFileBean.getFileLength());
+						long tempSize = 0;
+						File file = new File(downLoadFileBean.getFileSavePath() + File.separator + downLoadFileBean.getFileSaveName());
+						if (file.exists()) {
+							tempSize = file.length();
+						}
+						int nPercent = (int) (tempSize * 100 / downLoadFileBean.getFileLength());
+						// int nPercent = (int) (startPos * 100 / downLoadFileBean.getFileLength());
 						if (downLoadFileBean.getWeakReference() != null && downLoadFileBean.getWeakReference().get() != null && !downLoadFileBean.getWeakReference().get().isFinishing()) {
-							CommonHandler.getInstatnce().handerMessage(downLoadFileBean.getHandlerListener(), downLoadFileBean.getWhich(), 0, DownLoadFileBean.DOWLOAD_FLAG_ING, nPercent);
+							CommonHandler.getInstatnce().handerMessage(downLoadFileBean.getHandlerListener(), DownLoadFileBean.DOWLOAD_FLAG_ING, 0, downLoadFileBean.getWhich(), nPercent);
 						}
 					}
 				}
