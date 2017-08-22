@@ -61,22 +61,23 @@ public class DownLoadUtil {
 				DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 				int downloadId = (int) downloadManager.enqueue(request);
 				String apkFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + downLoadShowFileName + File.separator + downLoadFileName;
-				TaogubaCompleteReceiver completeReceiver = new TaogubaCompleteReceiver(downloadId, apkFilePath);
+				AtarCompleteReceiver completeReceiver = new AtarCompleteReceiver(downloadId, apkFilePath);
 				IntentFilter mIntentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 				context.registerReceiver(completeReceiver, mIntentFilter);
 			}
 		}
 	}
 
-	public class TaogubaCompleteReceiver extends BroadcastReceiver {
+	public class AtarCompleteReceiver extends BroadcastReceiver {
 		private int downloadId;
 		private String apkFilePath;
 
-		public TaogubaCompleteReceiver(int downloadId, String apkFilePath) {
+		public AtarCompleteReceiver(int downloadId, String apkFilePath) {
 			this.downloadId = downloadId;
 			this.apkFilePath = apkFilePath;
 		}
 
+		@SuppressLint("NewApi")
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
