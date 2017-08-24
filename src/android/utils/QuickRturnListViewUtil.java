@@ -12,8 +12,10 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 /**
  *****************************************************************************************************************************************************************************
@@ -52,6 +54,8 @@ public class QuickRturnListViewUtil {
 
 	private boolean noAnimation = false;
 	private int mCachedVerticalScrollRange;
+
+	private ImplOnScrollListener implOnScrollListener;
 
 	public QuickRturnListViewUtil(int quickReturnDirection, boolean isTopAnimation, ListView listView) {
 		super();
@@ -107,155 +111,120 @@ public class QuickRturnListViewUtil {
 					}
 				}
 			});
-			listView.setOnScrollListener(new OnScrollListener() {
-				@SuppressLint("NewApi")
-				@Override
-				public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-					if (quickReturnDirection == BUTTOM) {
-						if (firstVisibleItem > 1) {
-							mQuickReturnView.setVisibility(View.VISIBLE);
+			if (implOnScrollListener != null) {
+				implOnScrollListener.setQuickReturnView(mQuickReturnView);
+				implOnScrollListener.setTopPlaceHolder(topPlaceHolder);
+			}
+			listView.setOnScrollListener(implOnScrollListener);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public class ImplOnScrollListener extends PauseOnScrollListener {
+		private View mQuickReturnView, topPlaceHolder;
+
+		public void setQuickReturnView(View mQuickReturnView) {
+			this.mQuickReturnView = mQuickReturnView;
+		}
+
+		public void setTopPlaceHolder(View topPlaceHolder) {
+			this.topPlaceHolder = topPlaceHolder;
+		}
+
+		public ImplOnScrollListener(ImageLoader imageLoader, boolean pauseOnScroll, boolean pauseOnFling) {
+			super(imageLoader, pauseOnScroll, pauseOnFling);
+		}
+
+		@SuppressLint("NewApi")
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+			super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+			if (quickReturnDirection == BUTTOM) {
+				if (firstVisibleItem > 1) {
+					mQuickReturnView.setVisibility(View.VISIBLE);
+				}
+			} else {
+				mQuickReturnView.setVisibility(View.VISIBLE);
+			}
+			mScrollY = 0;
+			int translationY = 0;
+
+			if (scrollIsComputed) {
+				mScrollY = getComputedScrollY();
+			}
+			if (quickReturnDirection == BUTTOM) {
+				rawY = mScrollY;
+			} else if (quickReturnDirection == TOP) {
+				rawY = (topPlaceHolder != null ? topPlaceHolder.getTop() : 0) - Math.min(mCachedVerticalScrollRange - listView.getHeight(), mScrollY);
+			}
+
+			switch (mState) {
+			case STATE_OFFSCREEN:
+				if (quickReturnDirection == BUTTOM) {
+					if (rawY >= mMinRawY) {
+						mMinRawY = rawY;
+					} else {
+						mState = STATE_RETURNING;
+					}
+				} else if (quickReturnDirection == TOP) {
+					if (rawY <= mMinRawY) {
+						mMinRawY = rawY;
+					} else {
+						mState = STATE_RETURNING;
+					}
+				}
+				translationY = rawY;
+				break;
+
+			case STATE_ONSCREEN:
+				if (quickReturnDirection == BUTTOM) {
+					if (rawY > mQuickReturnHeight) {
+						mState = STATE_OFFSCREEN;
+						mMinRawY = rawY;
+					}
+				} else if (quickReturnDirection == TOP) {
+					if (rawY < -mQuickReturnHeight) {
+						mState = STATE_OFFSCREEN;
+						mMinRawY = rawY;
+					}
+				}
+				translationY = rawY;
+				break;
+			case STATE_RETURNING:
+				if (quickReturnDirection == BUTTOM) {
+					translationY = (rawY - mMinRawY) + mQuickReturnHeight;
+					if (translationY < 0) {
+						translationY = 0;
+						mMinRawY = rawY + mQuickReturnHeight;
+					}
+
+					if (rawY == 0) {
+						mState = STATE_ONSCREEN;
+						translationY = 0;
+					}
+
+					if (translationY > mQuickReturnHeight) {
+						mState = STATE_OFFSCREEN;
+						mMinRawY = rawY;
+					}
+				} else if (quickReturnDirection == TOP) {
+					if (!isTopAnimation) {
+						translationY = (rawY - mMinRawY) - mQuickReturnHeight;
+						if (translationY > 0) {
+							translationY = 0;
+							mMinRawY = rawY - mQuickReturnHeight;
+						}
+						if (rawY > 0) {
+							mState = STATE_ONSCREEN;
+							translationY = rawY;
+						}
+						if (translationY < -mQuickReturnHeight) {
+							mState = STATE_OFFSCREEN;
+							mMinRawY = rawY;
 						}
 					} else {
-						mQuickReturnView.setVisibility(View.VISIBLE);
-					}
-					mScrollY = 0;
-					int translationY = 0;
-
-					if (scrollIsComputed) {
-						mScrollY = getComputedScrollY();
-					}
-					if (quickReturnDirection == BUTTOM) {
-						rawY = mScrollY;
-					} else if (quickReturnDirection == TOP) {
-						rawY = (topPlaceHolder != null ? topPlaceHolder.getTop() : 0) - Math.min(mCachedVerticalScrollRange - listView.getHeight(), mScrollY);
-					}
-
-					switch (mState) {
-					case STATE_OFFSCREEN:
-						if (quickReturnDirection == BUTTOM) {
-							if (rawY >= mMinRawY) {
-								mMinRawY = rawY;
-							} else {
-								mState = STATE_RETURNING;
-							}
-						} else if (quickReturnDirection == TOP) {
-							if (rawY <= mMinRawY) {
-								mMinRawY = rawY;
-							} else {
-								mState = STATE_RETURNING;
-							}
-						}
-						translationY = rawY;
-						break;
-
-					case STATE_ONSCREEN:
-						if (quickReturnDirection == BUTTOM) {
-							if (rawY > mQuickReturnHeight) {
-								mState = STATE_OFFSCREEN;
-								mMinRawY = rawY;
-							}
-						} else if (quickReturnDirection == TOP) {
-							if (rawY < -mQuickReturnHeight) {
-								mState = STATE_OFFSCREEN;
-								mMinRawY = rawY;
-							}
-						}
-						translationY = rawY;
-						break;
-					case STATE_RETURNING:
-						if (quickReturnDirection == BUTTOM) {
-							translationY = (rawY - mMinRawY) + mQuickReturnHeight;
-							if (translationY < 0) {
-								translationY = 0;
-								mMinRawY = rawY + mQuickReturnHeight;
-							}
-
-							if (rawY == 0) {
-								mState = STATE_ONSCREEN;
-								translationY = 0;
-							}
-
-							if (translationY > mQuickReturnHeight) {
-								mState = STATE_OFFSCREEN;
-								mMinRawY = rawY;
-							}
-						} else if (quickReturnDirection == TOP) {
-							if (!isTopAnimation) {
-								translationY = (rawY - mMinRawY) - mQuickReturnHeight;
-								if (translationY > 0) {
-									translationY = 0;
-									mMinRawY = rawY - mQuickReturnHeight;
-								}
-								if (rawY > 0) {
-									mState = STATE_ONSCREEN;
-									translationY = rawY;
-								}
-								if (translationY < -mQuickReturnHeight) {
-									mState = STATE_OFFSCREEN;
-									mMinRawY = rawY;
-								}
-							} else {
-								if (translationY > 0) {
-									translationY = 0;
-									mMinRawY = rawY - mQuickReturnHeight;
-								} else if (rawY > 0) {
-									mState = STATE_ONSCREEN;
-									translationY = rawY;
-								} else if (translationY < -mQuickReturnHeight) {
-									mState = STATE_OFFSCREEN;
-									mMinRawY = rawY;
-								} else if (isTopAnimation && mQuickReturnView.getTranslationY() != 0 && !noAnimation) {
-									noAnimation = true;
-									anim = new TranslateAnimation(0, 0, -mQuickReturnHeight, 0);
-									anim.setFillAfter(true);
-									anim.setDuration(250);
-									mQuickReturnView.startAnimation(anim);
-									anim.setAnimationListener(new AnimationListener() {
-
-										@Override
-										public void onAnimationStart(Animation animation) {
-										}
-
-										@Override
-										public void onAnimationRepeat(Animation animation) {
-										}
-
-										@Override
-										public void onAnimationEnd(Animation animation) {
-											noAnimation = false;
-											mMinRawY = rawY;
-											mState = STATE_EXPANDED;
-										}
-									});
-								}
-							}
-						}
-						break;
-					case STATE_EXPANDED:
-						if (isTopAnimation && rawY < mMinRawY - 2 && !noAnimation) {
-							noAnimation = true;
-							anim = new TranslateAnimation(0, 0, 0, -mQuickReturnHeight);
-							anim.setFillAfter(true);
-							anim.setDuration(250);
-							anim.setAnimationListener(new AnimationListener() {
-
-								@Override
-								public void onAnimationStart(Animation animation) {
-								}
-
-								@Override
-								public void onAnimationRepeat(Animation animation) {
-
-								}
-
-								@Override
-								public void onAnimationEnd(Animation animation) {
-									noAnimation = false;
-									mState = STATE_OFFSCREEN;
-								}
-							});
-							mQuickReturnView.startAnimation(anim);
-						} else if (translationY > 0) {
+						if (translationY > 0) {
 							translationY = 0;
 							mMinRawY = rawY - mQuickReturnHeight;
 						} else if (rawY > 0) {
@@ -264,27 +233,87 @@ public class QuickRturnListViewUtil {
 						} else if (translationY < -mQuickReturnHeight) {
 							mState = STATE_OFFSCREEN;
 							mMinRawY = rawY;
-						} else {
-							mMinRawY = rawY;
-						}
-						break;
-					}
-					if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB) {
-						anim = new TranslateAnimation(0, 0, translationY, translationY);
-						anim.setFillAfter(true);
-						anim.setDuration(0);
-						mQuickReturnView.startAnimation(anim);
-					} else {
-						mQuickReturnView.setTranslationY(translationY);
-					}
-				}
+						} else if (isTopAnimation && mQuickReturnView.getTranslationY() != 0 && !noAnimation) {
+							noAnimation = true;
+							anim = new TranslateAnimation(0, 0, -mQuickReturnHeight, 0);
+							anim.setFillAfter(true);
+							anim.setDuration(250);
+							mQuickReturnView.startAnimation(anim);
+							anim.setAnimationListener(new AnimationListener() {
 
-				@Override
-				public void onScrollStateChanged(AbsListView view, int scrollState) {
+								@Override
+								public void onAnimationStart(Animation animation) {
+								}
+
+								@Override
+								public void onAnimationRepeat(Animation animation) {
+								}
+
+								@Override
+								public void onAnimationEnd(Animation animation) {
+									noAnimation = false;
+									mMinRawY = rawY;
+									mState = STATE_EXPANDED;
+								}
+							});
+						}
+					}
 				}
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
+				break;
+			case STATE_EXPANDED:
+				if (isTopAnimation && rawY < mMinRawY - 2 && !noAnimation) {
+					noAnimation = true;
+					anim = new TranslateAnimation(0, 0, 0, -mQuickReturnHeight);
+					anim.setFillAfter(true);
+					anim.setDuration(250);
+					anim.setAnimationListener(new AnimationListener() {
+
+						@Override
+						public void onAnimationStart(Animation animation) {
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+
+						}
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							noAnimation = false;
+							mState = STATE_OFFSCREEN;
+						}
+					});
+					mQuickReturnView.startAnimation(anim);
+				} else if (translationY > 0) {
+					translationY = 0;
+					mMinRawY = rawY - mQuickReturnHeight;
+				} else if (rawY > 0) {
+					mState = STATE_ONSCREEN;
+					translationY = rawY;
+				} else if (translationY < -mQuickReturnHeight) {
+					mState = STATE_OFFSCREEN;
+					mMinRawY = rawY;
+				} else {
+					mMinRawY = rawY;
+				}
+				break;
+			}
+			if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB) {
+				anim = new TranslateAnimation(0, 0, translationY, translationY);
+				anim.setFillAfter(true);
+				anim.setDuration(0);
+				mQuickReturnView.startAnimation(anim);
+			} else {
+				mQuickReturnView.setTranslationY(translationY);
+			}
 		}
+	}
+
+	public void setPauseOnScrollListenerParams(ImageLoader imageLoader, boolean pauseOnScroll, boolean pauseOnFling) {
+		this.implOnScrollListener = new ImplOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling);
+	}
+
+	public ImplOnScrollListener getImplOnScrollListener() {
+		return implOnScrollListener;
 	}
 }

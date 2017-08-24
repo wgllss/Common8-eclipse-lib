@@ -4,6 +4,7 @@
 package android.widget;
 
 import java.util.Date;
+
 import android.application.CommonApplication;
 import android.content.Context;
 import android.graphics.Color;
@@ -13,9 +14,6 @@ import android.util.TypedValue;
 import android.utils.CheckPermissionUtils;
 import android.utils.CheckPermissionUtils.OnResultListener;
 import android.view.Gravity;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  *****************************************************************************************************************************************************************************

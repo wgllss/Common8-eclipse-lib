@@ -15,9 +15,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
-import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.Scroller;
 
 public class DrawerLayout extends FrameLayout {
 

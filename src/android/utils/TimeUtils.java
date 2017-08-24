@@ -1,10 +1,11 @@
 package android.utils;
 
-import android.annotation.SuppressLint;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import android.annotation.SuppressLint;
 
 /**
  * TimeUtils

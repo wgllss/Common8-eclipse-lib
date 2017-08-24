@@ -3,12 +3,14 @@ package android.adapter;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;

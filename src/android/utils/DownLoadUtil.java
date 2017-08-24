@@ -17,7 +17,6 @@ import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Environment;
-import android.utils.FileUtils;
 
 /**
  *****************************************************************************************************************************************************************************

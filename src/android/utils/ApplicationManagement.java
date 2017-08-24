@@ -1,5 +1,7 @@
 package android.utils;
 
+import java.util.List;
+
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.application.CommonApplication;
@@ -13,8 +15,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Process;
-
-import java.util.List;
 
 public class ApplicationManagement {
 

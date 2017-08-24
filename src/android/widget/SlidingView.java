@@ -8,8 +8,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.Scroller;
 
 public class SlidingView extends ViewGroup {
 

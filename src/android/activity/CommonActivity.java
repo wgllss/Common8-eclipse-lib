@@ -140,7 +140,7 @@ public abstract class CommonActivity extends FragmentActivity {
 		pauseOnFling = savedInstanceState.getBoolean(STATE_PAUSE_ON_FLING, true);
 	}
 
-	private void applyScrollListener() {
+	protected void applyScrollListener() {
 		if (listView != null) {
 			listView.setOnScrollListener(new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling));
 		}

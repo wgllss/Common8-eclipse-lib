@@ -1,10 +1,8 @@
 package android.widget;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.SlidingView.OnScrollCloseListener;
 import android.widget.SlidingView.OnScrollOpenListener;
 

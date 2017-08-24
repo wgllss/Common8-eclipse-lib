@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import android.annotation.SuppressLint;
-import android.utils.TimeUtils;
 
 /**
  ******************************************************************************************
