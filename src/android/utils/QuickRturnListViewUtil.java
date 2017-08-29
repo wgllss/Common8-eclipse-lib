@@ -73,12 +73,12 @@ public class QuickRturnListViewUtil {
 		if (mItemOffsetY == null) {
 			mItemOffsetY = new int[mItemCount];
 		}
-		for (int i = 0; i < mItemCount; ++i) {
+		for (int i = 0; i < mItemCount && mItemOffsetY.length > i; ++i) {
 			View view = listView.getAdapter().getView(i, null, listView);
 			view.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 			mItemOffsetY[i] = mHeight;
 			mHeight += view.getMeasuredHeight();
-			System.out.println(mHeight);
+			// System.out.println(mHeight);
 		}
 		scrollIsComputed = true;
 	}
