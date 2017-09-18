@@ -32,10 +32,9 @@ public class SkinResourcesManager {
 	/**是否加载apk资源 false加载library下资源*/
 	public static boolean isLoadApkSkin = true;
 	/**主工程包名*/
-	public static String MAIN_PROJECT_PACKNAME = "";
+	private String main_project_packname = "";
 	/**皮肤工程包名*/
-	public static String SKIN_PROJECT_PACKNAME = "";
-
+	private String skin_project_packname = "";
 	/**assets根目录下资源文件 默认皮肤资源 */
 	private String DEFAULT_ASSETS_SKIN_NAME = "skin.js";
 	/**SD卡目录 下载 资源文件 皮肤资源*/
@@ -60,15 +59,22 @@ public class SkinResourcesManager {
 	/**
 	 * 初始化皮肤资源
 	 * @author :Atar
-	 * @createTime:2017-9-18上午11:07:14
+	 * @createTime:2017-9-18下午5:19:23
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
 	 * @param context
+	 * @param isDownLoadApkSkin 是否加载apk资源皮肤
+	 * @param main_project_packname 主工程包名
+	 * @param skin_project_packname 皮肤工程包名
+	 * @param download_skin_Url 下载皮肤url
 	 * @description:
 	 */
-	public void initSkinResources(final Context context) {
+	public void initSkinResources(final Context context, boolean isDownLoadApkSkin, String main_project_packname, String skin_project_packname, final String download_skin_Url) {
+		isLoadApkSkin = isDownLoadApkSkin;
 		if (isLoadApkSkin) {
+			this.main_project_packname = main_project_packname;
+			this.skin_project_packname = skin_project_packname;
 			ThreadPoolTool.getInstance().execute(new Runnable() {
 				@Override
 				public void run() {
@@ -87,6 +93,7 @@ public class SkinResourcesManager {
 							copyfileFromAssetsToSD(context);
 						}
 					}
+					FileUtils.downLoadFileAndSaveFileToCache(download_skin_Url, ".apk", SD_PATH);
 				}
 			});
 		}
@@ -189,8 +196,8 @@ public class SkinResourcesManager {
 		return mResources != null ? mResources.get() : null;
 	}
 
-	public static String getSkinPackName() {
-		return isLoadApkSkin ? SKIN_PROJECT_PACKNAME : MAIN_PROJECT_PACKNAME;
+	public String getSkinPackName() {
+		return isLoadApkSkin ? skin_project_packname : main_project_packname;
 	}
 
 	public interface loadSkinCallBack {

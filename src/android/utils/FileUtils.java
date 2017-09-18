@@ -27,6 +27,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.reflection.ThreadPoolTool;
 import android.util.Log;
 
 public class FileUtils {
@@ -951,5 +952,63 @@ public class FileUtils {
 				httpConnection.disconnect();// 关闭连接
 		}
 		return fileLength;
+	}
+
+	/**
+	 * 下载文件到缓存目录，如weex的js webview的html
+	 * @author :Atar
+	 * @createTime:2017-9-15上午9:45:10
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @param downloadUrl 下载地址
+	 * @param postfixName 文件后缀名
+	 * @param savePath 保存文件目录
+	 * @description:
+	 */
+	public static void downLoadFileAndSaveFileToCache(final String downloadUrl, final String postfixName, final String savePath) {
+		ThreadPoolTool.getInstance().execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (downloadUrl.contains(postfixName)) {
+						URL url = new URL(downloadUrl);
+						HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+						conn.setConnectTimeout(5000);
+						InputStream instream = conn.getInputStream();
+						if (instream != null) {
+
+							String result = "";
+							InputStreamReader inputreader = new InputStreamReader(instream);
+							BufferedReader buffreader = new BufferedReader(inputreader);
+							String line;
+							// 分行读取
+							while ((line = buffreader.readLine()) != null) {
+								result += "\n" + line;
+							}
+							inputreader.close();
+							instream.close();
+							buffreader.close();
+							if (result != null && result.length() > 0) {
+								File file = new File(savePath);
+								if (!FileUtils.exists(savePath)) {
+									FileUtils.createDir(savePath);
+								}
+								String strLocalFileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.length()).replace(postfixName, "");
+								File htmlFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(strLocalFileName));
+								htmlFile.deleteOnExit();
+								htmlFile.createNewFile();
+								FileOutputStream outStream = new FileOutputStream(htmlFile);
+								outStream.write(result.getBytes());
+								outStream.flush();
+								outStream.close();
+							}
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

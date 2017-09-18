@@ -45,7 +45,7 @@ public class SkinUtils {
 				for (int i = 0; i < views.length; i++) {
 					try {
 						views[i].setBackgroundColor(resources.obtainTypedArray(
-								resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getSkinPackName())).getColor(skinType, 0));
+								resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName())).getColor(skinType, 0));
 					} catch (Exception e) {
 					}
 				}
@@ -72,8 +72,8 @@ public class SkinUtils {
 			if (textView != null && textView.length > 0) {
 				for (int i = 0; i < textView.length; i++) {
 					try {
-						textView[i].setTextColor(resources.obtainTypedArray(resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getSkinPackName()))
-								.getColor(skinType, 0));
+						textView[i].setTextColor(resources.obtainTypedArray(
+								resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName())).getColor(skinType, 0));
 					} catch (Exception e) {
 					}
 				}
@@ -102,7 +102,7 @@ public class SkinUtils {
 				for (int i = 0; i < views.length; i++) {
 					try {
 						views[i].setBackgroundDrawable(resources.obtainTypedArray(
-								resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getSkinPackName())).getDrawable(skinType));
+								resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName())).getDrawable(skinType));
 					} catch (Exception e) {
 					}
 				}
@@ -130,7 +130,7 @@ public class SkinUtils {
 				for (int i = 0; i < imageViews.length; i++) {
 					try {
 						imageViews[i].setImageDrawable(resources.obtainTypedArray(
-								resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getSkinPackName())).getDrawable(skinType));
+								resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName())).getDrawable(skinType));
 					} catch (Exception e) {
 					}
 				}
@@ -154,8 +154,8 @@ public class SkinUtils {
 	 */
 	public static void setDivider(Context context, Resources resources, int resourcesName, int skinType, ListView listView) {
 		if (context != null && listView != null) {
-			listView.setDivider(resources.obtainTypedArray(resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getSkinPackName())).getDrawable(
-					skinType));
+			listView.setDivider(resources.obtainTypedArray(
+					resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName())).getDrawable(skinType));
 			listView.setDividerHeight(1);
 		}
 	}
