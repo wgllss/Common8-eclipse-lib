@@ -6,7 +6,10 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.appconfig.AppConfigSetting;
+import android.common.SkinResourcesManager;
+import android.common.SkinResourcesManager.loadSkinCallBack;
 import android.content.Context;
+import android.content.res.Resources;
 import android.enums.SkinMode;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
@@ -46,7 +49,7 @@ import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
  * @description: https://github.com/wgllss/Common8.git
  *****************************************************************************************************************************************************************************
  */
-@SuppressLint("ClickableViewAccessibility")
+@SuppressLint({ "ClickableViewAccessibility", "NewApi" })
 public abstract class CommonActivity extends FragmentActivity {
 	// private static String TAG = CommonActivity.class.getSimpleName();
 	/* ---加载图片方法1 start */
@@ -95,7 +98,7 @@ public abstract class CommonActivity extends FragmentActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		ChangeSkin(getCurrentSkinType());
+		loadSkin(getCurrentSkinType());
 	}
 
 	@Override
@@ -239,6 +242,33 @@ public abstract class CommonActivity extends FragmentActivity {
 	}
 
 	/**
+	 * 改变皮肤
+	 * @author :Atar
+	 * @createTime:2017-9-18下午1:34:13
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @description:
+	 */
+	public void loadSkin(final int skinType) {
+		if (SkinResourcesManager.isLoadApkSkin) {
+			if (SkinResourcesManager.getInstance(this).getResources() != null) {
+				ChangeSkin(SkinResourcesManager.getInstance(this).getResources(), getCurrentSkinType());
+			} else {
+				SkinResourcesManager.getInstance(this).loadSkinResources(new loadSkinCallBack() {
+
+					@Override
+					public void loadSkinSuccess(Resources mResources) {
+						ChangeSkin(mResources, skinType);
+					}
+				});
+			}
+		} else {
+			ChangeSkin(getResources(), skinType);
+		}
+	}
+
+	/**
 	 * 抽象方法监听改变皮肤
 	 * @author :Atar
 	 * @createTime:2014-8-18上午10:43:57
@@ -248,7 +278,7 @@ public abstract class CommonActivity extends FragmentActivity {
 	 * @param skinType
 	 * @description:
 	 */
-	public void ChangeSkin(int skinType) {
+	public void ChangeSkin(Resources resources, int skinType) {
 
 	}
 

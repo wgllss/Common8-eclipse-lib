@@ -1,6 +1,9 @@
 package android.fragment;
 
 import android.appconfig.AppConfigSetting;
+import android.common.SkinResourcesManager;
+import android.common.SkinResourcesManager.loadSkinCallBack;
+import android.content.res.Resources;
 import android.enums.SkinMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,7 +26,7 @@ public abstract class CommonFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		OnChangeSkin(getCurrentSkinType());
+		loadSkin(getCurrentSkinType());
 	}
 
 	/**
@@ -40,7 +43,34 @@ public abstract class CommonFragment extends Fragment {
 		return AppConfigSetting.getInstance().getInt(SkinMode.SKIN_MODE_KEY, 0);
 	}
 
-	public void OnChangeSkin(int skinType) {
+	/**
+	 * 改变皮肤
+	 * @author :Atar
+	 * @createTime:2017-9-18下午1:34:13
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @description:
+	 */
+	public void loadSkin(final int skinType) {
+		if (SkinResourcesManager.isLoadApkSkin) {
+			if (SkinResourcesManager.getInstance(getActivity()).getResources() != null) {
+				ChangeSkin(SkinResourcesManager.getInstance(getActivity()).getResources(), getCurrentSkinType());
+			} else {
+				SkinResourcesManager.getInstance(getActivity()).loadSkinResources(new loadSkinCallBack() {
+
+					@Override
+					public void loadSkinSuccess(Resources mResources) {
+						ChangeSkin(mResources, skinType);
+					}
+				});
+			}
+		} else {
+			ChangeSkin(getActivity().getResources(), skinType);
+		}
+	}
+
+	public void ChangeSkin(Resources resources, int skinType) {
 	}
 
 	/**
