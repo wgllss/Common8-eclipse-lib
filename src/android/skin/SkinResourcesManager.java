@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.download.DownLoadFileManager;
 import android.os.Environment;
 import android.reflection.ThreadPoolTool;
 import android.utils.FileUtils;
@@ -31,6 +32,7 @@ import android.utils.MDPassword;
 public class SkinResourcesManager {
 	/**是否加载apk资源 false加载library下资源*/
 	public static boolean isLoadApkSkin = true;
+	private String download_skin_Url = "";
 	/**主工程包名*/
 	private String main_project_packname = "";
 	/**皮肤工程包名*/
@@ -73,27 +75,30 @@ public class SkinResourcesManager {
 	public void initSkinResources(final Context context, boolean isDownLoadApkSkin, String main_project_packname, String skin_project_packname, final String download_skin_Url) {
 		isLoadApkSkin = isDownLoadApkSkin;
 		if (isLoadApkSkin) {
+			this.download_skin_Url = download_skin_Url;
 			this.main_project_packname = main_project_packname;
 			this.skin_project_packname = skin_project_packname;
 			ThreadPoolTool.getInstance().execute(new Runnable() {
 				@Override
 				public void run() {
-					File file = new File(SD_PATH);
-					if (!FileUtils.exists(SD_PATH)) {
-						FileUtils.createDir(SD_PATH);
-					}
-					File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
-					if (downloadFile.exists()) {
-						loadSkinResources(downloadFile.getAbsolutePath(), null);
-					} else {
-						File defaultFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME));
-						if (defaultFile.exists()) {
-							loadSkinResources(defaultFile.getAbsolutePath(), null);
-						} else {
-							copyfileFromAssetsToSD(context);
+					try {
+						File file = new File(SD_PATH);
+						if (!FileUtils.exists(SD_PATH)) {
+							FileUtils.createDir(SD_PATH);
 						}
+						File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
+						if (downloadFile.exists()) {
+							loadSkinResources(downloadFile.getAbsolutePath(), null);
+						} else {
+							File defaultFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME));
+							if (defaultFile.exists()) {
+								loadSkinResources(defaultFile.getAbsolutePath(), null);
+							} else {
+								copyfileFromAssetsToSD(context);
+							}
+						}
+					} catch (Exception e) {
 					}
-					FileUtils.downLoadFileAndSaveFileToCache(download_skin_Url, ".apk", SD_PATH);
 				}
 			});
 		}
@@ -152,6 +157,10 @@ public class SkinResourcesManager {
 			mResources = new WeakReference<Resources>(skinResource);
 			if (callback != null) {
 				callback.loadSkinSuccess(skinResource);
+			} else {
+				File downloadFile = new File(SD_PATH + MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
+				downloadFile.deleteOnExit();
+				DownLoadFileManager.getInstance().downLoad(null, null, 0, download_skin_Url, MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME), SD_PATH);
 			}
 		} catch (Exception e) {
 
