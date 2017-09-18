@@ -1,12 +1,11 @@
 package android.activity;
 
-import java.lang.ref.WeakReference;
 import java.util.Stack;
 
 import android.app.Activity;
 
 public class ActivityManager {
-	private WeakReference<Stack<Activity>> activityStack;
+	private Stack<Activity> activityStack;
 	private static ActivityManager instance;
 	/**启动第一个Activity*/
 	private Activity loadActivity;
@@ -19,7 +18,11 @@ public class ActivityManager {
 	}
 
 	public Stack<Activity> getActivityStack() {
-		return activityStack != null ? activityStack.get() : null;
+		return activityStack;
+	}
+
+	public void setActivityStack(Stack<Activity> activityStack) {
+		this.activityStack = activityStack;
 	}
 
 	/**
@@ -33,8 +36,8 @@ public class ActivityManager {
 	 * @description:
 	 */
 	public void popActivity(Activity activity) {
-		if (activity != null && activityStack.get() != null) {
-			activityStack.get().remove(activity);
+		if (activity != null) {
+			activityStack.remove(activity);
 			activity = null;
 		}
 	}
@@ -51,8 +54,8 @@ public class ActivityManager {
 	 */
 	public Activity currentActivity() {
 		Activity activity = null;
-		if (activityStack != null && activityStack.get() != null && !activityStack.get().empty())
-			activity = activityStack.get().lastElement();
+		if (activityStack != null && !activityStack.empty())
+			activity = activityStack.lastElement();
 		return activity;
 	}
 
@@ -68,9 +71,9 @@ public class ActivityManager {
 	 */
 	public void pushActivity(Activity activity) {
 		if (activityStack == null) {
-			activityStack = new WeakReference<Stack<Activity>>(new Stack<Activity>());
+			activityStack = new Stack<Activity>();
 		}
-		activityStack.get().add(activity);
+		activityStack.add(activity);
 	}
 
 	/**
@@ -86,9 +89,7 @@ public class ActivityManager {
 	public <A extends Activity> void popAllActivityExceptOne(A activity) {
 		while (true) {
 			Activity mActivity = currentActivity();
-			if (activity == null
-					|| (activityStack != null && activityStack.get() != null && activityStack.get().size() > 0 && activityStack.get().size() == 1 && activityStack.get().get(0).getClass()
-							.equals(activity.getClass()))) {
+			if (activity == null || (activityStack != null && activityStack.size() > 0 && activityStack.size() == 1 && activityStack.get(0).getClass().equals(activity.getClass()))) {
 				break;
 			}
 			if (mActivity.getClass().equals(activity.getClass())) {
@@ -136,10 +137,10 @@ public class ActivityManager {
 	 * @description:
 	 */
 	public Activity getPreviousActivity() {
-		if (activityStack == null || activityStack.get() == null || activityStack.get().size() == 0 || activityStack.get().size() < 2) {
+		if (activityStack == null || activityStack.size() == 0 || activityStack.size() < 2) {
 			return null;
 		}
-		return activityStack.get().get(activityStack.get().size() - 2);
+		return activityStack.get(activityStack.size() - 2);
 	}
 
 	/**
@@ -154,10 +155,10 @@ public class ActivityManager {
 	 * @description:
 	 */
 	public Activity getActivity(int lastPosition) {
-		if (activityStack == null || activityStack.get() == null || activityStack.get().size() == 0 || activityStack.get().size() < lastPosition) {
+		if (activityStack == null || activityStack.size() == 0 || activityStack.size() < lastPosition) {
 			return null;
 		}
-		return activityStack.get().get(activityStack.get().size() - lastPosition);
+		return activityStack.get(activityStack.size() - lastPosition);
 	}
 
 	/**
@@ -173,13 +174,10 @@ public class ActivityManager {
 	 */
 	@SuppressWarnings("unchecked")
 	public <A extends Activity> A getActivity(Class<A> cls) {
-		if (activityStack == null || activityStack.get() == null || activityStack.get().size() == 0) {
-			return null;
-		}
 		A a = null;
-		for (int i = activityStack.get().size() - 1; i >= 0; i--) {
-			if (activityStack.get().get(i).getClass().equals(cls)) {
-				a = (A) activityStack.get().get(i);
+		for (int i = activityStack.size() - 1; i >= 0; i--) {
+			if (activityStack.get(i).getClass().equals(cls)) {
+				a = (A) activityStack.get(i);
 				break;
 			}
 		}
@@ -199,15 +197,12 @@ public class ActivityManager {
 	 */
 	@SuppressWarnings("unchecked")
 	public <A extends Activity> A getActivity(Class<A> cls, int lastPosition) {
-		if (activityStack == null || activityStack.get() == null || activityStack.get().size() == 0 || activityStack.get().size() < lastPosition) {
-			return null;
-		}
 		A a = null;
 		int tempLastPosition = 0;
-		for (int i = activityStack.get().size() - 1; i >= 0; i--) {
-			if (activityStack.get().get(i).getClass().equals(cls)) {
+		for (int i = activityStack.size() - 1; i >= 0; i--) {
+			if (activityStack.get(i).getClass().equals(cls)) {
 				if (tempLastPosition == lastPosition) {
-					a = (A) activityStack.get().get(i);
+					a = (A) activityStack.get(i);
 					break;
 				}
 				tempLastPosition++;
@@ -227,13 +222,10 @@ public class ActivityManager {
 	 * @description: 从最后算起，若有相同的关闭最后一个 用i--
 	 */
 	public <A extends Activity> void finishActivity(Class<A> cls) {
-		if (activityStack == null || activityStack.get() == null || activityStack.get().size() == 0) {
-			return;
-		}
-		for (int i = activityStack.get().size() - 1; i >= 0; i--) {
-			if (activityStack.get().get(i).getClass().equals(cls)) {
-				activityStack.get().get(i).finish();
-				activityStack.get().remove(i);
+		for (int i = activityStack.size() - 1; i >= 0; i--) {
+			if (activityStack.get(i).getClass().equals(cls)) {
+				activityStack.get(i).finish();
+				activityStack.remove(i);
 				break;
 			}
 		}
@@ -251,21 +243,18 @@ public class ActivityManager {
 	 * @description:
 	 */
 	public <A extends Activity, B extends Activity> void finishActivity2(Class<A> clsA, Class<B> clsB) {
-		if (activityStack == null || activityStack.get() == null || activityStack.get().size() == 0) {
-			return;
-		}
 		int flag = 0;
-		for (int i = activityStack.get().size() - 1; i >= 0; i--) {
+		for (int i = activityStack.size() - 1; i >= 0; i--) {
 			if (flag == 2) {
 				break;
 			}
-			if (activityStack.get().get(i).getClass().equals(clsA)) {
-				activityStack.get().get(i).finish();
-				activityStack.get().remove(i);
+			if (activityStack.get(i).getClass().equals(clsA)) {
+				activityStack.get(i).finish();
+				activityStack.remove(i);
 				flag++;
-			} else if (activityStack.get().get(i).getClass().equals(clsB)) {
-				activityStack.get().get(i).finish();
-				activityStack.get().remove(i);
+			} else if (activityStack.get(i).getClass().equals(clsB)) {
+				activityStack.get(i).finish();
+				activityStack.remove(i);
 				flag++;
 			}
 		}
@@ -281,12 +270,9 @@ public class ActivityManager {
 	 * @description:
 	 */
 	public void finishCurrentActivity() {
-		if (activityStack == null || activityStack.get() == null || activityStack.get().size() == 0) {
-			return;
-		}
-		if (activityStack != null && activityStack.get().size() > 0) {
-			activityStack.get().get(activityStack.get().size() - 1).finish();
-			activityStack.get().remove(activityStack.get().size() - 1);
+		if (activityStack != null && activityStack.size() > 0) {
+			activityStack.get(activityStack.size() - 1).finish();
+			activityStack.remove(activityStack.size() - 1);
 		}
 	}
 
