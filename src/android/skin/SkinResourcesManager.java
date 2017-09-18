@@ -1,7 +1,7 @@
 /**
  * 
  */
-package android.common;
+package android.skin;
 
 import java.io.File;
 import java.io.FileNotFoundException;

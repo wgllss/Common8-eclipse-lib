@@ -1,7 +1,7 @@
 /**
  * 
  */
-package android.common;
+package android.skin;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

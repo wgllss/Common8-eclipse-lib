@@ -1,10 +1,10 @@
 package android.fragment;
 
 import android.appconfig.AppConfigSetting;
-import android.common.SkinResourcesManager;
-import android.common.SkinResourcesManager.loadSkinCallBack;
 import android.content.res.Resources;
 import android.enums.SkinMode;
+import android.skin.SkinResourcesManager;
+import android.skin.SkinResourcesManager.loadSkinCallBack;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
