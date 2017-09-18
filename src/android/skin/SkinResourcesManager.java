@@ -4,9 +4,7 @@
 package android.skin;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -43,9 +41,9 @@ public class SkinResourcesManager {
 	/**SD卡目录 下载 资源文件 皮肤资源*/
 	private String SD_PATH = Environment.getExternalStorageDirectory() + "/.Android/.cache/.sjkfdifdns/";
 	/**sd下默认皮肤资源*/
-	private String DEFAULT_SD_SKIN_NAME;
+	private String DEFAULT_SD_SKIN_NAME = "default_skin";
 	/**sd下载皮肤资源*/
-	private String DOWNLOAD_SD_SKIN_NAME;
+	private String DOWNLOAD_SD_SKIN_NAME = "download_skin";
 
 	private static SkinResourcesManager mInstance;
 	private Context mContext;
@@ -109,7 +107,7 @@ public class SkinResourcesManager {
 		boolean copyIsFinish = false;
 		try {
 			InputStream is = context.getAssets().open(DEFAULT_ASSETS_SKIN_NAME);
-			File file = new File(SD_PATH);
+			File file = new File(SD_PATH + MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME));
 			file.createNewFile();
 			FileOutputStream fos = new FileOutputStream(file);
 			byte[] temp = new byte[1024];
@@ -120,9 +118,7 @@ public class SkinResourcesManager {
 			fos.close();
 			is.close();
 			copyIsFinish = true;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return copyIsFinish;
@@ -146,9 +142,7 @@ public class SkinResourcesManager {
 			addAssetPath.invoke(assetManager, skinFilePath);
 			Resources superRes = mContext.getResources();
 			Resources skinResource = new Resources(assetManager, superRes.getDisplayMetrics(), superRes.getConfiguration());
-			if (mResources == null) {
-				mResources = new WeakReference<Resources>(skinResource);
-			}
+			mResources = new WeakReference<Resources>(skinResource);
 			if (callback != null) {
 				callback.loadSkinSuccess(skinResource);
 			}
