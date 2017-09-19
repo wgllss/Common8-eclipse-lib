@@ -23,6 +23,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.utils.FileUtils;
+import android.utils.ShowLog;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -51,7 +52,7 @@ import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
  */
 @SuppressLint({ "ClickableViewAccessibility", "NewApi" })
 public abstract class CommonActivity extends FragmentActivity {
-	// private static String TAG = CommonActivity.class.getSimpleName();
+	private static String TAG = CommonActivity.class.getSimpleName();
 	/* ---加载图片方法1 start */
 	public ImageLoader imageLoader = ImageLoader.getInstance();
 	protected static final String STATE_PAUSE_ON_SCROLL = "STATE_PAUSE_ON_SCROLL";
@@ -254,6 +255,7 @@ public abstract class CommonActivity extends FragmentActivity {
 		if (SkinResourcesManager.isLoadApkSkin) {
 			if (SkinResourcesManager.getInstance(this).getResources() != null) {
 				ChangeSkin(SkinResourcesManager.getInstance(this).getResources(), getCurrentSkinType());
+				ShowLog.i(TAG, "加载已加载好的皮肤");
 			} else {
 				SkinResourcesManager.getInstance(this).loadSkinResources(new loadSkinCallBack() {
 
