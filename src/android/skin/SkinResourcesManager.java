@@ -74,10 +74,10 @@ public class SkinResourcesManager {
 	 */
 	public void initSkinResources(final Context context, boolean isDownLoadApkSkin, String main_project_packname, String skin_project_packname, final String download_skin_Url) {
 		isLoadApkSkin = isDownLoadApkSkin;
+		this.main_project_packname = main_project_packname;
+		this.skin_project_packname = skin_project_packname;
 		if (isLoadApkSkin) {
 			this.download_skin_Url = download_skin_Url;
-			this.main_project_packname = main_project_packname;
-			this.skin_project_packname = skin_project_packname;
 			ThreadPoolTool.getInstance().execute(new Runnable() {
 				@Override
 				public void run() {
@@ -202,7 +202,11 @@ public class SkinResourcesManager {
 	}
 
 	public Resources getResources() {
-		return mResources != null ? mResources.get() : null;
+		if (isLoadApkSkin) {
+			return mResources != null ? mResources.get() : null;
+		} else {
+			return mContext.getResources();
+		}
 	}
 
 	public String getSkinPackName() {

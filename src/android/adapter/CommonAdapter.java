@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.View;
@@ -23,6 +24,7 @@ public abstract class CommonAdapter<T> extends BaseAdapter {
 	private int currentPostiotn = -1;
 	private int condition = -1;
 	private int skinType;
+	private Resources resources;
 
 	@SuppressWarnings("unchecked")
 	public CommonAdapter(List<?> list) {
@@ -140,14 +142,20 @@ public abstract class CommonAdapter<T> extends BaseAdapter {
 		return skinType;
 	}
 
-	public void setSkinType(int skinType) {
+	public void setSkin(Resources resources, int skinType) {
 		this.skinType = skinType;
+		this.resources = resources;
 		notifyDataSetChanged();
+	}
+
+	public Resources getResources() {
+		return resources;
 	}
 
 	public ImageLoadingListener getAnimateFirstListener() {
 		return animateFirstListener;
 	}
+
 	//
 	// public void setAnimateFirstListener(ImageLoadingListener animateFirstListener) {
 	// this.animateFirstListener = animateFirstListener;

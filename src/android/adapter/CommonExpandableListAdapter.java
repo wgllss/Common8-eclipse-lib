@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.View;
@@ -37,6 +38,7 @@ public abstract class CommonExpandableListAdapter<G, C> extends BaseExpandableLi
 	private Context context;
 	private int condition = -1;
 	private int skinType;
+	private Resources resources;
 
 	/**
 	 * 构造方法只带组List
@@ -230,13 +232,18 @@ public abstract class CommonExpandableListAdapter<G, C> extends BaseExpandableLi
 		return true;
 	}
 
+	public void setSkin(Resources resources, int skinType) {
+		this.skinType = skinType;
+		this.resources = resources;
+		notifyDataSetChanged();
+	}
+
 	public int getSkinType() {
 		return skinType;
 	}
 
-	public void setSkinType(int skinType) {
-		this.skinType = skinType;
-		notifyDataSetChanged();
+	public Resources getResources() {
+		return resources;
 	}
 
 	public ImageLoadingListener getAnimateFirstListener() {
