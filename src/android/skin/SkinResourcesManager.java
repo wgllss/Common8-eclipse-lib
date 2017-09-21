@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -213,13 +214,8 @@ public class SkinResourcesManager {
 	 * @modifyAuthor:
 	 * @description:
 	 */
-	public void downLoadSkin() {
-		// final File downloadFile = new File(SD_PATH + MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
-		// File tempFile = new File(SD_PATH + MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME) + ".tmp0");
-		// if (downloadFile.exists() && !tempFile.exists()) {// 存在下载皮肤文件，但不存在 下载缓存文件 代表下载完成有完整文件
-		// downloadFile.deleteOnExit();
-		// }
-		DownLoadFileManager.getInstance().downLoad(null, handlerListener, 0, download_skin_Url, 0, true, MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME), SD_PATH);
+	public void downLoadSkin(Activity activity) {
+		DownLoadFileManager.getInstance().downLoad(activity, handlerListener, 0, download_skin_Url, 0, true, MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME), SD_PATH);
 	}
 
 	HandlerListener handlerListener = new HandlerListener() {
