@@ -54,12 +54,13 @@ public class DownLoadFileManager {
 	 * @param whcih 哪一个下载，用于同时下载多个 which值必须不相同 接收时为 msg.arg2
 	 * @param fileUrl 文件url
 	 * @param fileThreadNum 单个文件 多线程数下载 可减少单个文件下载时间 注：如果不是专作如迅雷下载那类，最好不要把fileThreadNum 设置超过3，一般1就可以了
+	 * @param deleteOnExit 如果存在是否强制删除后再下载
 	 * @param strDownloadFileName 本地文件名
 	 * @param strDownloadDir 本地文件目录
 	 * @description:
 	 */
-	public void downLoad(final Activity activity, final HandlerListener handlerListener, final int which, final String fileUrl, final int fileThreadNum, final String strDownloadFileName,
-			final String strDownloadDir) {
+	public void downLoad(final Activity activity, final HandlerListener handlerListener, final int which, final String fileUrl, final int fileThreadNum, final boolean deleteOnExit,
+			final String strDownloadFileName, final String strDownloadDir) {
 		try {
 			if (map != null && !map.containsKey(Integer.toString(which))) {
 				ThreadPoolTool.getInstance().execute(new Runnable() {
@@ -69,6 +70,13 @@ public class DownLoadFileManager {
 							DownLoadFile mDownLoadFile = new DownLoadFile();
 							if (map != null) {
 								map.put(Integer.toString(which), new WeakReference<DownLoadFile>(mDownLoadFile));
+							}
+							if (deleteOnExit) {
+								File file = new File(strDownloadDir + File.separator + strDownloadFileName);
+								File tempFile = new File(strDownloadDir + File.separator + strDownloadFileName + ".tmp" + which);
+								if (file.exists() && !tempFile.exists()) {
+									file.deleteOnExit();
+								}
 							}
 							mDownLoadFile.downLoad(activity, handlerListener, which, fileUrl, fileThreadNum, strDownloadFileName, strDownloadDir);
 						} catch (Exception e) {
@@ -100,7 +108,7 @@ public class DownLoadFileManager {
 	 * @description:
 	 */
 	public void downLoad(final Activity activity, final HandlerListener handlerListener, final int which, final String fileUrl, final String strDownloadFileName, final String strDownloadDir) {
-		downLoad(activity, handlerListener, which, fileUrl, 1, strDownloadFileName, strDownloadDir);
+		downLoad(activity, handlerListener, which, fileUrl, 1, false, strDownloadFileName, strDownloadDir);
 	}
 
 	/**

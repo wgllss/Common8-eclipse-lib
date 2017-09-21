@@ -1,5 +1,19 @@
 package android.http;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -191,7 +205,7 @@ public class HttpRequest {
 		}
 		return netSataus;
 	}
-	
+
 	/**
 	 * 根据code抛出异常
 	 * @author :Atar
@@ -264,4 +278,94 @@ public class HttpRequest {
 	// }
 	// return netSataus;
 	// }
+
+	@SuppressWarnings("static-access")
+	public static HttpURLConnection getHttpURLConnection(URL url, int connectTimeOut) {
+		try {
+			if ("https".equals(url.getProtocol())) {
+				trustAllHosts();
+				HttpsURLConnection https = (HttpsURLConnection) url.openConnection();
+				https.setDefaultHostnameVerifier(hnv);
+				https.setHostnameVerifier(hnv);
+				https.setDefaultSSLSocketFactory(mSSLSocketFactory);
+				https.setSSLSocketFactory(mSSLSocketFactory);
+				https.setConnectTimeout(3 * connectTimeOut);
+				https.setReadTimeout(3 * connectTimeOut);
+				return https;
+			} else {
+				HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+				httpURLConnection.setConnectTimeout(connectTimeOut);
+				httpURLConnection.setReadTimeout(connectTimeOut);
+				return httpURLConnection;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * 信任所有host
+	 */
+	public static HostnameVerifier hnv = new HostnameVerifier() {
+
+		@Override
+		public boolean verify(String hostname, SSLSession session) {
+			return true;
+		}
+	};
+
+	/**
+	 * 设置https 
+	 * @author :Atar
+	 * @createTime:2015-9-17下午4:57:39
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @description:
+	 */
+	@SuppressLint("TrulyRandom")
+	public static void trustAllHosts() {
+		try {
+			TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					return new java.security.cert.X509Certificate[] {};
+				}
+
+				public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				}
+
+				public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				}
+			} };
+			SSLContext sc = SSLContext.getInstance("TLS");
+			sc.init(null, trustAllCerts, new SecureRandom());
+			if (mSSLSocketFactory == null) {
+				mSSLSocketFactory = sc.getSocketFactory();
+			}
+			HttpsURLConnection.setDefaultHostnameVerifier(hnv);
+			HttpsURLConnection.setDefaultSSLSocketFactory(mSSLSocketFactory);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static SSLSocketFactory mSSLSocketFactory;
+
+	/**
+	 * 设置请求头
+	 * 
+	 * @param httpConnection
+	 */
+	public static void setConHead(HttpURLConnection httpConnection) {
+		httpConnection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		httpConnection.setRequestProperty("Upgrade-Insecure-Requests", "1");
+		httpConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36");
+		httpConnection.setRequestProperty("Accept-Language", "en-us,en;q=0.7,zh-cn;q=0.3");
+		httpConnection.setRequestProperty("Accept-Encoding", "aa");
+		httpConnection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+		httpConnection.setRequestProperty("Keep-Alive", "300");
+		httpConnection.setRequestProperty("Connection", "keep-alive");
+		httpConnection.setRequestProperty("Cache-Control", "max-age=0");
+	}
 }

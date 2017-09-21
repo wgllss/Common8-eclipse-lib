@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.http.HttpRequest;
 import android.net.Uri;
 import android.reflection.ThreadPoolTool;
 import android.util.Log;
@@ -849,6 +850,7 @@ public class FileUtils {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	public static long getFileSizes(File f) throws Exception {// 取得文件大小
 		long s = 0;
 		if (f.exists()) {
@@ -921,25 +923,8 @@ public class FileUtils {
 		HttpURLConnection httpConnection = null;
 		try {
 			URL url = new URL(fileUrl);
-			httpConnection = (HttpURLConnection) url.openConnection();
-			httpConnection.setRequestProperty("User-Agent", "java-download-core");// 设置头,也可以不做设置
-			// httpConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U;
-			// Linux i686; en-US; rv:1.9.0.3) Gecko/2008092510 Ubuntu/8.04 (hardy)
-			// Firefox/3.0.3");
-			httpConnection.setRequestProperty("Accept-Language", "en-us,en;q=0.7,zh-cn;q=0.3");
-			httpConnection.setRequestProperty("Accept-Encoding", "aa");
-			httpConnection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-			httpConnection.setRequestProperty("Keep-Alive", "300");
-			httpConnection.setRequestProperty("Connection", "keep-alive");
-			// httpConnection.setRequestProperty("If-Modified-Since", "Fri, 02 Jan
-			// 2009 17:00:05 GMT");
-			// httpConnection.setRequestProperty("If-None-Match",
-			// "\"1261d8-4290-df64d224\"");
-			httpConnection.setRequestProperty("Cache-Control", "max-age=0");
-			// 设置连接超时时间为10000ms
-			httpConnection.setConnectTimeout(10000);
-			// 设置读取数据超时时间为10000ms
-			httpConnection.setReadTimeout(10000);
+			httpConnection = HttpRequest.getHttpURLConnection(url, 10000);
+			HttpRequest.setConHead(httpConnection);
 			httpConnection.connect();
 			int responseCode = httpConnection.getResponseCode();
 			if (responseCode <= 400) {
@@ -996,38 +981,6 @@ public class FileUtils {
 								while ((len = bis.read(buffer)) != -1) {
 									outStream.write(buffer, 0, len);
 								}
-								// int ch = 0;
-								// while ((ch = instream.read()) != -1) {
-								// outStream.write(ch);
-								// }
-								// outStream.close();
-								// instream.close();
-								// String result = "";
-								// InputStreamReader inputreader = new InputStreamReader(instream);
-								// BufferedReader buffreader = new BufferedReader(inputreader);
-								// String line;
-								// // 分行读取
-								// while ((line = buffreader.readLine()) != null) {
-								// result += "\n" + line;
-								// }
-								// inputreader.close();
-								// instream.close();
-								// buffreader.close();
-								// if (result != null && result.length() > 0) {
-								// File file = new File(savePath);
-								// if (!FileUtils.exists(savePath)) {
-								// FileUtils.createDir(savePath);
-								// }
-								// String strLocalFileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.length()).replace(postfixName, "");
-								// File htmlFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(strLocalFileName));
-								// htmlFile.deleteOnExit();
-								// htmlFile.createNewFile();
-								// FileOutputStream outStream = new FileOutputStream(htmlFile);
-								// outStream.write(result.getBytes());
-								// outStream.flush();
-								// outStream.close();
-								// }
-
 							}
 						} catch (Exception e) {
 

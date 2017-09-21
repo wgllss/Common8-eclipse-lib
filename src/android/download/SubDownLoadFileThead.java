@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 
 import android.common.CommonHandler;
+import android.http.HttpRequest;
 import android.utils.ShowLog;
 
 /**
@@ -87,7 +88,6 @@ public class SubDownLoadFileThead extends Thread {
 
 	/** 首次连接,初使化长度 */
 	private void downLoad() {
-		// FileChannel fc=null;
 		InputStream inputStream = null;
 		HttpURLConnection con = null;
 		Long myFileLength = 0L;// 临时文件长度,用于减少下载进度消息数量
@@ -95,18 +95,13 @@ public class SubDownLoadFileThead extends Thread {
 			curNum++;
 			long count = 0;
 			URL url = new URL(downLoadFileBean.getFileSiteURL());
-			con = (HttpURLConnection) url.openConnection();
-			setConHead(con);
-			// 设置连接超时时间为10000ms
-			con.setConnectTimeout(timeout);
-			// 设置读取数据超时时间为10000ms
-			con.setReadTimeout(timeout);
+			con = HttpRequest.getHttpURLConnection(url, timeout);
+			HttpRequest.setConHead(con);
 			if (startPos < endPos && isRange) {
 				// 设置下载数据的起止区间
 				con.setRequestProperty("Range", "bytes=" + startPos + "-" + endPos);
 				ShowLog.i(TAG, "'" + downLoadFileBean.getFileSiteURL() + "'-Thread号:" + threadId + " 开始位置:" + startPos + ",结束位置：" + endPos);
 				file.seek(startPos);// 转到文件指针位置
-				// fc=file.getChannel();
 			}
 			int responseCode = con.getResponseCode();
 			// 判断http status是否为HTTP/1.1 206 Partial Content或者200 OK
@@ -118,11 +113,6 @@ public class SubDownLoadFileThead extends Thread {
 
 				while (!downLoadFileBean.getPauseDownloadFlag() && (len = inputStream.read(b)) != -1) {
 					file.write(b, 0, len);// 写入临时数据文件,外性能需要提高
-					// MappedByteBuffer mbbo =
-					// fc.map(FileChannel.MapMode.READ_WRITE, 0, len);
-					// for(int i=0;i<len;i++){
-					// mbbo.put(i, b[i]);
-					// }
 					count += len;
 					startPos += len;
 					tempFile.seek(seek);
@@ -168,20 +158,4 @@ public class SubDownLoadFileThead extends Thread {
 			}
 		}
 	}
-
-	/**
-	 * 设置请求头
-	 * 
-	 * @param httpConnection
-	 */
-	private void setConHead(HttpURLConnection httpConnection) {
-		httpConnection.setRequestProperty("User-Agent", "java-download-core");// 设置头,也可以不做设置
-		httpConnection.setRequestProperty("Accept-Language", "en-us,en;q=0.7,zh-cn;q=0.3");
-		httpConnection.setRequestProperty("Accept-Encoding", "aa");
-		httpConnection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-		httpConnection.setRequestProperty("Keep-Alive", "300");
-		httpConnection.setRequestProperty("Connection", "keep-alive");
-		httpConnection.setRequestProperty("Cache-Control", "max-age=0");
-	}
-
 }

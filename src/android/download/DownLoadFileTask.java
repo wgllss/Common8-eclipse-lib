@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.http.HttpRequest;
 import android.utils.ShowLog;
 
 public class DownLoadFileTask extends Thread {
@@ -203,12 +204,8 @@ public class DownLoadFileTask extends Thread {
 		HttpURLConnection httpConnection = null;
 		try {
 			URL url = new URL(downLoadFileBean.getFileSiteURL());
-			httpConnection = (HttpURLConnection) url.openConnection();
-			setConHead(httpConnection);
-			// 设置连接超时时间为10000ms
-			httpConnection.setConnectTimeout(10000);
-			// 设置读取数据超时时间为10000ms
-			httpConnection.setReadTimeout(10000);
+			httpConnection = HttpRequest.getHttpURLConnection(url, 10000);
+			HttpRequest.setConHead(httpConnection);
 			httpConnection.connect();
 			int responseCode = httpConnection.getResponseCode();
 			if (responseCode <= 400) {
@@ -225,49 +222,5 @@ public class DownLoadFileTask extends Thread {
 				httpConnection.disconnect();// 关闭连接
 		}
 		return false;// 失败返回
-
 	}
-
-	/**
-	 * 设置请求头
-	 * 
-	 * @param httpConnection
-	 */
-	private void setConHead(HttpURLConnection httpConnection) {
-		httpConnection.setRequestProperty("User-Agent", "java-download-core");// 设置头,也可以不做设置
-		// httpConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U;
-		// Linux i686; en-US; rv:1.9.0.3) Gecko/2008092510 Ubuntu/8.04 (hardy)
-		// Firefox/3.0.3");
-		httpConnection.setRequestProperty("Accept-Language", "en-us,en;q=0.7,zh-cn;q=0.3");
-		httpConnection.setRequestProperty("Accept-Encoding", "aa");
-		httpConnection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-		httpConnection.setRequestProperty("Keep-Alive", "300");
-		httpConnection.setRequestProperty("Connection", "keep-alive");
-		// httpConnection.setRequestProperty("If-Modified-Since", "Fri, 02 Jan
-		// 2009 17:00:05 GMT");
-		// httpConnection.setRequestProperty("If-None-Match",
-		// "\"1261d8-4290-df64d224\"");
-		httpConnection.setRequestProperty("Cache-Control", "max-age=0");
-		// httpConnection.setRequestProperty("Referer",
-		// "http://www.dianping.com");
-	}
-
-	// // 读取保存的下载信息（文件指针位置）
-	// private void read_nPos() {
-	// try {
-	// DataInputStream inputStream = new DataInputStream(
-	// new FileInputStream(tempFile));
-	// int nCount = inputStream.readInt();
-	// startPos = new long[nCount];
-	// endPos = new long[nCount];
-	// for (int i = 0; i < startPos.length; i++) {
-	// startPos[i] = inputStream.readLong();
-	// endPos[i] = inputStream.readLong();
-	// }
-	// inputStream.close();
-	// } catch (Exception e) {
-	// // logger.debug("读取文件下载临时文件异常", e);
-	// }
-	// }
-
 }
