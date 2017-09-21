@@ -230,16 +230,9 @@ public class SkinResourcesManager {
 				ShowLog.i(TAG, "皮肤下载失败");
 				break;
 			case android.download.DownLoadFileBean.DOWLOAD_FLAG_SUCCESS:
-				if (9999 == msg.arg2) {
-					loadSkinResources(SD_PATH + MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME), null);
-				}
 				ShowLog.i(TAG, "皮肤下载成功");
 				break;
 			case android.download.DownLoadFileBean.DOWLOAD_FLAG_ING:
-				if (9999 == msg.arg2) {
-					loadSkinResources(null);
-				}
-				downLoadSkin();
 				ShowLog.i(TAG, "皮肤正在下载:" + msg.arg2 + "%");
 				break;
 			}

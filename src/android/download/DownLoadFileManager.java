@@ -71,11 +71,15 @@ public class DownLoadFileManager {
 							if (map != null) {
 								map.put(Integer.toString(which), new WeakReference<DownLoadFile>(mDownLoadFile));
 							}
+
 							if (deleteOnExit) {
 								File file = new File(strDownloadDir + File.separator + strDownloadFileName);
 								File tempFile = new File(strDownloadDir + File.separator + strDownloadFileName + ".tmp" + which);
 								if (file.exists() && !tempFile.exists()) {
-									file.deleteOnExit();
+									while (!file.delete()) {
+										Thread.sleep(100);
+										ShowLog.e(TAG, strDownloadFileName + "-file.delete()-->" + file.delete() + which);
+									}
 								}
 							}
 							mDownLoadFile.downLoad(activity, handlerListener, which, fileUrl, fileThreadNum, strDownloadFileName, strDownloadDir);
