@@ -283,6 +283,14 @@ public class SkinUtils {
 		}
 	}
 
+	public static String[] getStringArray(Context context, Resources resources, int resourcesName) {
+		try {
+			return resources.getStringArray(resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName()));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	@SuppressWarnings("deprecation")
 	public static Drawable getDrawable(Context context, Resources resources, int resourcesName) {
 		try {
