@@ -28,6 +28,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.http.HttpRequest;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.StatFs;
 import android.reflection.ThreadPoolTool;
 import android.util.Log;
 
@@ -908,6 +911,39 @@ public class FileUtils {
 	}
 
 	/**
+	 * SD卡剩余空间为多少M
+	 * @author :Atar
+	 * @createTime:2017-8-22上午10:33:55
+	 * @version:1.0.0
+	 * @modifyTime:
+	 * @modifyAuthor:
+	 * @return
+	 * @description:
+	 */
+	@SuppressLint("NewApi")
+	public static long getAvailable() {
+		File path = Environment.getExternalStorageDirectory();
+		StatFs stat = new StatFs(path.toString());
+		// 此处进行版本的判断因为在2.3版本中 getBlockSize()等方法还适用
+		// 之后的有些版本有了新的方法进行替代。
+		long blocksize;
+		// long totalblock;
+		long availbleblocks;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			blocksize = stat.getBlockSizeLong();
+			// totalblock = stat.getBlockCountLong();
+			availbleblocks = stat.getAvailableBlocksLong();
+		} else {
+			blocksize = stat.getBlockSize();
+			// totalblock = stat.getBlockCount();
+			availbleblocks = stat.getAvailableBlocks();
+		}
+		long size = availbleblocks * blocksize;
+		size = size / (1024 * 1024);
+		return size;
+	}
+
+	/**
 	 * 获取文件长度
 	 * @author :Atar
 	 * @createTime:2011-8-18下午4:12:55
@@ -968,8 +1004,8 @@ public class FileUtils {
 							InputStream instream = httpConnection.getInputStream();
 
 							File file = new File(savePath);
-							if (!FileUtils.exists(savePath)) {
-								FileUtils.createDir(savePath);
+							if (!exists(savePath)) {
+								createDir(savePath);
 							}
 							String strLocalFileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.length()).replace(postfixName, "");
 							File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(strLocalFileName));
