@@ -68,16 +68,16 @@ public class DownLoadFile {
 			if (mPauseLatch == null) {
 				Message msg = new Message();
 				if (mDownLoadBean != null) {
+					msg.arg2 = mDownLoadBean.getWhich();
+					DownLoadFileManager.getInstance().remove(msg.arg2);
 					if (mDownLoadBean.getWeakReference() != null && mDownLoadBean.getWeakReference().get() != null && mDownLoadBean.getWeakReference().get().isFinishing()) {
 						ShowLog.i(TAG, "---activity已经关闭---异步线程执行到此结束-------->");
 						mDownLoadBean = null;
 						return;
 					}
 
-					msg.arg2 = mDownLoadBean.getWhich();
 					msg.what = mDownLoadBean.isDownSuccess() ? DownLoadFileBean.DOWLOAD_FLAG_SUCCESS : DownLoadFileBean.DOWLOAD_FLAG_FAIL;
 					CommonHandler.getInstatnce().handerMessage(mDownLoadBean.getHandlerListener(), msg);
-					DownLoadFileManager.getInstance().remove(msg.what);
 					mDownLoadBean = null;
 				}
 			} else {

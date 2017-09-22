@@ -956,42 +956,49 @@ public class FileUtils {
 		ThreadPoolTool.getInstance().execute(new Runnable() {
 			@Override
 			public void run() {
+				HttpURLConnection httpConnection = null;
 				try {
 					if (downloadUrl.contains(postfixName)) {
 						URL url = new URL(downloadUrl);
-						HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-						conn.setConnectTimeout(5000);
+						httpConnection = HttpRequest.getHttpURLConnection(url, 10000);
+						HttpRequest.setConHead(httpConnection);
+						httpConnection.connect();
+						int responseCode = httpConnection.getResponseCode();
+						if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_PARTIAL) {
+							InputStream instream = httpConnection.getInputStream();
 
-						InputStream instream = conn.getInputStream();
-
-						File file = new File(savePath);
-						if (!FileUtils.exists(savePath)) {
-							FileUtils.createDir(savePath);
-						}
-						String strLocalFileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.length()).replace(postfixName, "");
-						File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(strLocalFileName));
-						downloadFile.deleteOnExit();
-						downloadFile.createNewFile();
-						FileOutputStream outStream = new FileOutputStream(downloadFile);
-						BufferedInputStream bis = new BufferedInputStream(instream);
-						try {
-							if (instream != null) {
-								byte[] buffer = new byte[1024];
-								int len;
-								while ((len = bis.read(buffer)) != -1) {
-									outStream.write(buffer, 0, len);
-								}
+							File file = new File(savePath);
+							if (!FileUtils.exists(savePath)) {
+								FileUtils.createDir(savePath);
 							}
-						} catch (Exception e) {
+							String strLocalFileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.length()).replace(postfixName, "");
+							File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(strLocalFileName));
+							downloadFile.deleteOnExit();
+							downloadFile.createNewFile();
+							FileOutputStream outStream = new FileOutputStream(downloadFile);
+							BufferedInputStream bis = new BufferedInputStream(instream);
+							try {
+								if (instream != null) {
+									byte[] buffer = new byte[1024];
+									int len;
+									while ((len = bis.read(buffer)) != -1) {
+										outStream.write(buffer, 0, len);
+									}
+								}
+							} catch (Exception e) {
 
-						} finally {
-							outStream.close();
-							bis.close();
-							instream.close();
+							} finally {
+								outStream.close();
+								bis.close();
+								instream.close();
+							}
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					ShowLog.e(TAG, "异常:", e);
+				} finally {
+					if (httpConnection != null)
+						httpConnection.disconnect();// 关闭连接
 				}
 			}
 		});

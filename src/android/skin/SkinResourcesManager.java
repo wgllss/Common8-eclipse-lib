@@ -10,10 +10,10 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 
 import android.app.Activity;
+import android.appconfig.AppConfigDownloadManager;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.download.DownLoadFileManager;
 import android.interfaces.HandlerListener;
 import android.os.Environment;
 import android.os.Message;
@@ -38,6 +38,7 @@ public class SkinResourcesManager {
 
 	/**是否加载apk资源 false加载library下资源*/
 	public static boolean isLoadApkSkin = true;
+
 	private String download_skin_Url = "";
 	/**主工程包名*/
 	private String main_project_packname = "";
@@ -93,8 +94,7 @@ public class SkinResourcesManager {
 							FileUtils.createDir(SD_PATH);
 						}
 						final File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
-						File tempFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME) + ".tmp0");
-						if (downloadFile.exists() && !tempFile.exists()) {// 存在下载皮肤文件，但不存在 下载缓存文件 代表下载完成有完整文件
+						if (downloadFile.exists()) {// 存在下载皮肤文件
 							loadSkinResources(downloadFile.getAbsolutePath(), null);
 							return;
 						}
@@ -189,8 +189,7 @@ public class SkinResourcesManager {
 					FileUtils.createDir(SD_PATH);
 				}
 				File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
-				File tempFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME) + ".tmp0");
-				if (downloadFile.exists() && !tempFile.exists()) {// 存在下载皮肤文件，但不存在 下载缓存文件 代表下载完成有完整文件
+				if (downloadFile.exists()) {// 存在下载皮肤文件
 					newest_path = downloadFile.getAbsolutePath();
 				} else {
 					File defaultFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME));
@@ -208,14 +207,18 @@ public class SkinResourcesManager {
 	/**
 	 * 下载皮肤
 	 * @author :Atar
-	 * @createTime:2017-9-20下午4:15:10
+	 * @createTime:2017-9-22下午2:42:49
 	 * @version:1.0.0
 	 * @modifyTime:
 	 * @modifyAuthor:
+	 * @param activity
+	 * @param newVersion 皮肤新版本号 
+	 * @param repalceViersion 皮肤在多少版本以上( >= )下载替换 
 	 * @description:
 	 */
-	public void downLoadSkin(Activity activity) {
-		DownLoadFileManager.getInstance().downLoad(activity, handlerListener, 0, download_skin_Url, 0, true, MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME), SD_PATH);
+	public void downLoadSkin(Activity activity, final String newVersion, String replaceMinVersion) {
+		AppConfigDownloadManager.getInstance().downLoadAppConfigFile(activity, handlerListener, newVersion, replaceMinVersion, 0, download_skin_Url, 0, true,
+				MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME) + "0", SD_PATH);
 	}
 
 	HandlerListener handlerListener = new HandlerListener() {
@@ -227,6 +230,10 @@ public class SkinResourcesManager {
 				break;
 			case android.download.DownLoadFileBean.DOWLOAD_FLAG_SUCCESS:
 				ShowLog.i(TAG, "皮肤下载成功");
+				final File oldDownloadFile = new File(SD_PATH + MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
+				oldDownloadFile.deleteOnExit();
+				FileUtils.copyFile(SD_PATH + MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME) + "0", SD_PATH + MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
+				ShowLog.i(TAG, "皮肤文件替换成功");
 				break;
 			case android.download.DownLoadFileBean.DOWLOAD_FLAG_ING:
 				ShowLog.i(TAG, "皮肤正在下载:" + msg.arg2 + "%");
