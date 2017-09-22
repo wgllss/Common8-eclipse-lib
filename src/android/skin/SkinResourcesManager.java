@@ -180,28 +180,30 @@ public class SkinResourcesManager {
 	 * @description:
 	 */
 	public void loadSkinResources(final loadSkinCallBack callback) {
-		ThreadPoolTool.getInstance().execute(new Runnable() {
-			@Override
-			public void run() {
-				String newest_path = SD_PATH + MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME);
-				File file = new File(SD_PATH);
-				if (!FileUtils.exists(SD_PATH)) {
-					FileUtils.createDir(SD_PATH);
-				}
-				File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
-				if (downloadFile.exists()) {// 存在下载皮肤文件
-					newest_path = downloadFile.getAbsolutePath();
-				} else {
-					File defaultFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME));
-					if (defaultFile.exists()) {
-						newest_path = defaultFile.getAbsolutePath();
-					} else {
-						return;
+		if (isLoadApkSkin) {
+			ThreadPoolTool.getInstance().execute(new Runnable() {
+				@Override
+				public void run() {
+					String newest_path = SD_PATH + MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME);
+					File file = new File(SD_PATH);
+					if (!FileUtils.exists(SD_PATH)) {
+						FileUtils.createDir(SD_PATH);
 					}
+					File downloadFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME));
+					if (downloadFile.exists()) {// 存在下载皮肤文件
+						newest_path = downloadFile.getAbsolutePath();
+					} else {
+						File defaultFile = new File(file.getAbsolutePath(), MDPassword.getPassword32(DEFAULT_SD_SKIN_NAME));
+						if (defaultFile.exists()) {
+							newest_path = defaultFile.getAbsolutePath();
+						} else {
+							return;
+						}
+					}
+					loadSkinResources(newest_path, callback);
 				}
-				loadSkinResources(newest_path, callback);
-			}
-		});
+			});
+		}
 	}
 
 	/**
@@ -217,8 +219,10 @@ public class SkinResourcesManager {
 	 * @description:
 	 */
 	public void downLoadSkin(Activity activity, final String newVersion, String replaceMinVersion) {
-		AppConfigDownloadManager.getInstance().downLoadAppConfigFile(activity, handlerListener, newVersion, replaceMinVersion, 0, download_skin_Url, 0, true,
-				MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME) + "0", SD_PATH);
+		if (isLoadApkSkin) {
+			AppConfigDownloadManager.getInstance().downLoadAppConfigFile(activity, handlerListener, newVersion, replaceMinVersion, 0, download_skin_Url, 0, true,
+					MDPassword.getPassword32(DOWNLOAD_SD_SKIN_NAME) + "0", SD_PATH);
+		}
 	}
 
 	HandlerListener handlerListener = new HandlerListener() {
