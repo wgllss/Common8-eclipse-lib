@@ -6,7 +6,6 @@ package android.skin;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 
 import android.app.Activity;
@@ -15,6 +14,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.interfaces.HandlerListener;
+import android.os.Environment;
 import android.os.Message;
 import android.reflection.ThreadPoolTool;
 import android.utils.FileUtils;
@@ -46,7 +46,7 @@ public class SkinResourcesManager {
 	/**assets根目录下资源文件 默认皮肤资源 */
 	private String DEFAULT_ASSETS_SKIN_NAME = "skin.so";
 	/**SD卡目录 下载 资源文件 皮肤资源*/
-	private String SD_PATH;// = Environment.getExternalStorageDirectory() + "/.Android/.cache/.sjkfdifdns/";
+	private String SD_PATH = Environment.getExternalStorageDirectory() + "/.Android/.cache/.";
 	/**sd下默认皮肤资源*/
 	private String DEFAULT_SD_SKIN_NAME = "default_skin";
 	/**sd下载皮肤资源*/
@@ -54,14 +54,14 @@ public class SkinResourcesManager {
 
 	private static SkinResourcesManager mInstance;
 	private Context mContext;
-	private WeakReference<Resources> mResources;
+	private Resources mResources;
 
 	public static SkinResourcesManager getInstance(Context mContext) {
 		if (mInstance == null) {
 			mInstance = new SkinResourcesManager();
 			mInstance.mContext = mContext;
-			mInstance.SD_PATH = mContext.getCacheDir().getAbsolutePath() + "/.sjkfdifdns/";
-			ShowLog.i(mInstance.TAG, "mInstance.SD_PATH ->" + mInstance.SD_PATH);
+			mInstance.main_project_packname = mContext.getPackageName();
+			mInstance.SD_PATH = mInstance.SD_PATH + MDPassword.getPassword32(mInstance.main_project_packname) + "/";
 		}
 		return mInstance;
 	}
@@ -80,9 +80,8 @@ public class SkinResourcesManager {
 	 * @param download_skin_Url 下载皮肤url
 	 * @description:
 	 */
-	public void initSkinResources(boolean isDownLoadApkSkin, String main_project_packname, String skin_project_packname, final String download_skin_Url) {
+	public void initSkinResources(boolean isDownLoadApkSkin, String skin_project_packname, final String download_skin_Url) {
 		isLoadApkSkin = isDownLoadApkSkin;
-		this.main_project_packname = main_project_packname;
 		this.skin_project_packname = skin_project_packname;
 		if (isLoadApkSkin) {
 			this.download_skin_Url = download_skin_Url;
@@ -160,11 +159,11 @@ public class SkinResourcesManager {
 			Method addAssetPath = assetManager.getClass().getMethod("addAssetPath", String.class);
 			addAssetPath.invoke(assetManager, skinFilePath);
 			Resources superRes = mContext.getResources();
-			Resources skinResource = new Resources(assetManager, superRes.getDisplayMetrics(), superRes.getConfiguration());
-			mResources = new WeakReference<Resources>(skinResource);
+			mResources = new Resources(assetManager, superRes.getDisplayMetrics(), superRes.getConfiguration());
 			if (callback != null) {
-				callback.loadSkinSuccess(skinResource);
+				callback.loadSkinSuccess(mResources);
 			}
+			ShowLog.i(TAG, "皮肤加载成功");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -249,7 +248,7 @@ public class SkinResourcesManager {
 
 	public Resources getResources() {
 		if (isLoadApkSkin) {
-			return mResources != null ? mResources.get() : null;
+			return mResources;
 		} else {
 			return mContext.getResources();
 		}
