@@ -42,12 +42,12 @@ public class SkinUtils {
 	 * @param views
 	 * @description:
 	 */
-	public static void setBackgroundColor(Context context, Resources resources, int resourcesName, int skinType, View... views) {
-		if (context != null && resources != null) {
+	public static void setBackgroundColor(Context context, int resourcesName, int skinType, View... views) {
+		if (context != null) {
 			if (views != null && views.length > 0) {
 				for (int i = 0; i < views.length; i++) {
 					try {
-						views[i].setBackgroundColor(getArrayColor(context, resources, resourcesName, skinType));
+						views[i].setBackgroundColor(getArrayColor(context, resourcesName, skinType));
 					} catch (Exception e) {
 					}
 				}
@@ -69,12 +69,12 @@ public class SkinUtils {
 	 * @param textView
 	 * @description:
 	 */
-	public static void setTextColor(Context context, Resources resources, int resourcesName, int skinType, TextView... textView) {
-		if (context != null && resources != null) {
+	public static void setTextColor(Context context, int resourcesName, int skinType, TextView... textView) {
+		if (context != null) {
 			if (textView != null && textView.length > 0) {
 				for (int i = 0; i < textView.length; i++) {
 					try {
-						textView[i].setTextColor(getArrayColor(context, resources, resourcesName, skinType));
+						textView[i].setTextColor(getArrayColor(context, resourcesName, skinType));
 					} catch (Exception e) {
 					}
 				}
@@ -97,12 +97,12 @@ public class SkinUtils {
 	 * @description:
 	 */
 	@SuppressWarnings("deprecation")
-	public static void setBackgroundDrawable(Context context, Resources resources, int resourcesName, int skinType, View... views) {
-		if (context != null && resources != null) {
+	public static void setBackgroundDrawable(Context context, int resourcesName, int skinType, View... views) {
+		if (context != null) {
 			if (views != null && views.length > 0) {
 				for (int i = 0; i < views.length; i++) {
 					try {
-						views[i].setBackgroundDrawable(getArrayDrawable(context, resources, resourcesName, skinType));
+						views[i].setBackgroundDrawable(getArrayDrawable(context, resourcesName, skinType));
 					} catch (Exception e) {
 					}
 				}
@@ -124,12 +124,12 @@ public class SkinUtils {
 	 * @param views
 	 * @description:
 	 */
-	public static void setImageDrawable(Context context, Resources resources, int resourcesName, int skinType, ImageView... imageViews) {
-		if (context != null && resources != null) {
+	public static void setImageDrawable(Context context, int resourcesName, int skinType, ImageView... imageViews) {
+		if (context != null) {
 			if (imageViews != null && imageViews.length > 0) {
 				for (int i = 0; i < imageViews.length; i++) {
 					try {
-						imageViews[i].setImageDrawable(getArrayDrawable(context, resources, resourcesName, skinType));
+						imageViews[i].setImageDrawable(getArrayDrawable(context, resourcesName, skinType));
 					} catch (Exception e) {
 					}
 				}
@@ -151,9 +151,9 @@ public class SkinUtils {
 	 * @param listView
 	 * @description:
 	 */
-	public static void setDivider(Context context, Resources resources, int resourcesName, int skinType, ListView listView) {
+	public static void setDivider(Context context, int resourcesName, int skinType, ListView listView) {
 		if (context != null && listView != null) {
-			listView.setDivider(getArrayDrawable(context, resources, resourcesName, skinType));
+			listView.setDivider(getArrayDrawable(context, resourcesName, skinType));
 			listView.setDividerHeight(1);
 		}
 	}
@@ -173,11 +173,11 @@ public class SkinUtils {
 	 * @description:
 	 */
 	public static void setText(Context context, Resources resources, int resourcesName, int skinType, TextView... textView) {
-		if (context != null && resources != null) {
+		if (context != null) {
 			if (textView != null && textView.length > 0) {
 				for (int i = 0; i < textView.length; i++) {
 					try {
-						textView[i].setText(getArrayString(context, resources, resourcesName, skinType));
+						textView[i].setText(getArrayString(context, resourcesName, skinType));
 					} catch (Exception e) {
 					}
 				}
@@ -200,8 +200,9 @@ public class SkinUtils {
 	 * @return
 	 * @description:
 	 */
-	public static int getArrayColor(Context context, Resources resources, int resourcesName, int skinType) {
+	public static int getArrayColor(Context context, int resourcesName, int skinType) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.obtainTypedArray(resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName())).getColor(
 					skinType, 0);
 		} catch (Exception e) {
@@ -223,8 +224,9 @@ public class SkinUtils {
 	 * @return
 	 * @description:
 	 */
-	public static Drawable getArrayDrawable(Context context, Resources resources, int resourcesName, int skinType) {
+	public static Drawable getArrayDrawable(Context context, int resourcesName, int skinType) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.obtainTypedArray(resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName()))
 					.getDrawable(skinType);
 		} catch (Exception e) {
@@ -246,8 +248,9 @@ public class SkinUtils {
 	 * @return
 	 * @description:
 	 */
-	public static String getArrayString(Context context, Resources resources, int resourcesName, int skinType) {
+	public static String getArrayString(Context context, int resourcesName, int skinType) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.getStringArray(resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName()))[skinType];
 		} catch (Exception e) {
 			return "";
@@ -267,24 +270,27 @@ public class SkinUtils {
 	 * @return
 	 * @description:
 	 */
-	public static int getColor(Context context, Resources resources, int resourcesName) {
+	public static int getColor(Context context, int resourcesName) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.getColor(resources.getIdentifier(context.getResources().getString(resourcesName), "color", SkinResourcesManager.getInstance(context).getSkinPackName()));
 		} catch (Exception e) {
 			return 0;
 		}
 	}
 
-	public static String getString(Context context, Resources resources, int resourcesName) {
+	public static String getString(Context context, int resourcesName) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.getString(resources.getIdentifier(context.getResources().getString(resourcesName), "string", SkinResourcesManager.getInstance(context).getSkinPackName()));
 		} catch (Exception e) {
 			return "";
 		}
 	}
 
-	public static String[] getStringArray(Context context, Resources resources, int resourcesName) {
+	public static String[] getStringArray(Context context, int resourcesName) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.getStringArray(resources.getIdentifier(context.getResources().getString(resourcesName), "array", SkinResourcesManager.getInstance(context).getSkinPackName()));
 		} catch (Exception e) {
 			return null;
@@ -292,8 +298,9 @@ public class SkinUtils {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static Drawable getDrawable(Context context, Resources resources, int resourcesName) {
+	public static Drawable getDrawable(Context context, int resourcesName) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.getDrawable(resources.getIdentifier(context.getResources().getString(resourcesName), "drawable", SkinResourcesManager.getInstance(context).getSkinPackName()));
 		} catch (Exception e) {
 			return new ColorDrawable(Color.TRANSPARENT);
@@ -316,8 +323,9 @@ public class SkinUtils {
 	// }
 	// }
 
-	public static float getDimenID(Context context, Resources resources, int resourcesName) {
+	public static float getDimenID(Context context, int resourcesName) {
 		try {
+			Resources resources = SkinResourcesManager.getInstance(context).getResources();
 			return resources.getDimension(resources.getIdentifier(context.getResources().getString(resourcesName), "dimen", SkinResourcesManager.getInstance(context).getSkinPackName()));
 		} catch (Exception e) {
 			return 0;

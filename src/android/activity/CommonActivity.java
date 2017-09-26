@@ -254,19 +254,19 @@ public abstract class CommonActivity extends FragmentActivity {
 	public void loadSkin(final int skinType) {
 		if (SkinResourcesManager.isLoadApkSkin) {
 			if (SkinResourcesManager.getInstance(this).getResources() != null) {
-				ChangeSkin(SkinResourcesManager.getInstance(this).getResources(), getCurrentSkinType());
+				ChangeSkin(getCurrentSkinType());
 				ShowLog.i(TAG, "加载已加载好的皮肤");
 			} else {
 				SkinResourcesManager.getInstance(this).loadSkinResources(new loadSkinCallBack() {
 
 					@Override
 					public void loadSkinSuccess(Resources mResources) {
-						ChangeSkin(mResources, skinType);
+						ChangeSkin(skinType);
 					}
 				});
 			}
 		} else {
-			ChangeSkin(getResources(), skinType);
+			ChangeSkin(skinType);
 		}
 	}
 
@@ -280,7 +280,7 @@ public abstract class CommonActivity extends FragmentActivity {
 	 * @param skinType
 	 * @description:
 	 */
-	public void ChangeSkin(Resources resources, int skinType) {
+	public void ChangeSkin(int skinType) {
 
 	}
 

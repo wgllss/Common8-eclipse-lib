@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.interfaces.HandlerListener;
-import android.os.Environment;
 import android.os.Message;
 import android.reflection.ThreadPoolTool;
 import android.utils.FileUtils;
@@ -45,9 +44,9 @@ public class SkinResourcesManager {
 	/**皮肤工程包名*/
 	private String skin_project_packname = "";
 	/**assets根目录下资源文件 默认皮肤资源 */
-	private String DEFAULT_ASSETS_SKIN_NAME = "skin.js";
+	private String DEFAULT_ASSETS_SKIN_NAME = "skin.so";
 	/**SD卡目录 下载 资源文件 皮肤资源*/
-	private String SD_PATH = Environment.getExternalStorageDirectory() + "/.Android/.cache/.sjkfdifdns/";
+	private String SD_PATH;// = Environment.getExternalStorageDirectory() + "/.Android/.cache/.sjkfdifdns/";
 	/**sd下默认皮肤资源*/
 	private String DEFAULT_SD_SKIN_NAME = "default_skin";
 	/**sd下载皮肤资源*/
@@ -61,6 +60,8 @@ public class SkinResourcesManager {
 		if (mInstance == null) {
 			mInstance = new SkinResourcesManager();
 			mInstance.mContext = mContext;
+			mInstance.SD_PATH = mContext.getCacheDir().getAbsolutePath() + "/.sjkfdifdns/";
+			ShowLog.i(mInstance.TAG, "mInstance.SD_PATH ->" + mInstance.SD_PATH);
 		}
 		return mInstance;
 	}

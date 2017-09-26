@@ -55,22 +55,22 @@ public abstract class CommonFragment extends Fragment {
 	public void loadSkin(final int skinType) {
 		if (SkinResourcesManager.isLoadApkSkin) {
 			if (SkinResourcesManager.getInstance(getActivity()).getResources() != null) {
-				ChangeSkin(SkinResourcesManager.getInstance(getActivity()).getResources(), getCurrentSkinType());
+				ChangeSkin(getCurrentSkinType());
 			} else {
 				SkinResourcesManager.getInstance(getActivity()).loadSkinResources(new loadSkinCallBack() {
 
 					@Override
 					public void loadSkinSuccess(Resources mResources) {
-						ChangeSkin(mResources, skinType);
+						ChangeSkin(skinType);
 					}
 				});
 			}
 		} else {
-			ChangeSkin(getActivity().getResources(), skinType);
+			ChangeSkin(skinType);
 		}
 	}
 
-	public void ChangeSkin(Resources resources, int skinType) {
+	public void ChangeSkin(int skinType) {
 	}
 
 	/**
