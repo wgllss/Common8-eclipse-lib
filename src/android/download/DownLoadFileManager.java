@@ -76,10 +76,7 @@ public class DownLoadFileManager {
 								File file = new File(strDownloadDir + File.separator + strDownloadFileName);
 								File tempFile = new File(strDownloadDir + File.separator + strDownloadFileName + ".tmp" + which);
 								if (file.exists() && !tempFile.exists()) {
-									while (!file.delete()) {
-										Thread.sleep(100);
-										ShowLog.e(TAG, strDownloadFileName + "-file.delete()-->" + file.delete() + which);
-									}
+									file.delete();
 								}
 							}
 							mDownLoadFile.downLoad(activity, handlerListener, which, fileUrl, fileThreadNum, strDownloadFileName, strDownloadDir);
