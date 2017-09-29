@@ -172,7 +172,7 @@ public class SkinUtils {
 	 * @param textView
 	 * @description:
 	 */
-	public static void setText(Context context, Resources resources, int resourcesName, int skinType, TextView... textView) {
+	public static void setText(Context context, int resourcesName, int skinType, TextView... textView) {
 		if (context != null) {
 			if (textView != null && textView.length > 0) {
 				for (int i = 0; i < textView.length; i++) {
