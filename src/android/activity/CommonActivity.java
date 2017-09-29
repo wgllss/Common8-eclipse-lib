@@ -6,16 +6,17 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.appconfig.AppConfigSetting;
+import android.common.CommonHandler;
 import android.content.Context;
 import android.content.res.Resources;
 import android.enums.SkinMode;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
+import android.interfaces.HandlerListener;
 import android.interfaces.OnOpenDrawerCompleteListener;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
-import android.os.Handler;
 import android.skin.SkinResourcesManager;
 import android.skin.SkinResourcesManager.loadSkinCallBack;
 import android.support.v4.app.Fragment;
@@ -71,7 +72,7 @@ public abstract class CommonActivity extends FragmentActivity {
 	public static final int AUDIO_PLAYING = 0x1216;
 	/** 播放停止 msg.arg1>0为中途停止播放 msg.arg1=0为自动播放结束*/
 	public static final int AUDIO_STOP = 0x1217;
-	protected static Handler handlerStatus;
+	protected static HandlerListener mHandlerStatusListener;
 	private MediaPlayer mMediaPlayer;
 	protected static AnimationDrawable animationDrawable;
 	protected static String strAudioPath;
@@ -488,8 +489,8 @@ public abstract class CommonActivity extends FragmentActivity {
 	 */
 	private void onPauseAudio() {
 		if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-			if (handlerStatus != null) {
-				handlerStatus.sendEmptyMessage(AUDIO_STOP);
+			if (mHandlerStatusListener != null) {
+				CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_STOP, 0, 0, null);
 			}
 			mMediaPlayer.stop();
 			mMediaPlayer.release();
@@ -519,7 +520,7 @@ public abstract class CommonActivity extends FragmentActivity {
 	 * @description:
 	 */
 	@SuppressLint("NewApi")
-	public void playAudio(String localPath, AnimationDrawable mAnimationDrawable, ImageView imageView, int stopImgResID, final Handler mHandler) {
+	public void playAudio(String localPath, AnimationDrawable mAnimationDrawable, ImageView imageView, int stopImgResID, final HandlerListener mHandlerListener) {
 		if (mMediaPlayer == null) {
 			mMediaPlayer = new MediaPlayer();
 		}
@@ -531,9 +532,8 @@ public abstract class CommonActivity extends FragmentActivity {
 		}
 		if (mMediaPlayer.isPlaying()) {
 			mMediaPlayer.stop();
-			if (handlerStatus != null) {
-				handlerStatus.sendMessage(handlerStatus.obtainMessage(AUDIO_STOP, 1, 0));// 中途停止播放
-				// handlerStatus.sendEmptyMessage(AUDIO_STOP);
+			if (mHandlerStatusListener != null) {
+				CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_STOP, 1, 0, null);// 中途停止播放
 			}
 			mMediaPlayer.release();
 			mMediaPlayer = null;
@@ -554,10 +554,10 @@ public abstract class CommonActivity extends FragmentActivity {
 			strAudioPath = localPath;
 			mImageView = imageView;
 			mStopImgResID = stopImgResID;
-			handlerStatus = mHandler;
+			mHandlerStatusListener = mHandlerListener;
 			mMediaPlayer.start();
-			if (handlerStatus != null) {
-				handlerStatus.sendEmptyMessage(AUDIO_PLAYING);
+			if (mHandlerStatusListener != null) {
+				CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_PLAYING, 0, 0, null);
 			}
 			mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 				@Override
@@ -565,8 +565,8 @@ public abstract class CommonActivity extends FragmentActivity {
 					// if (mOnCompletionListener != null) {
 					// mOnCompletionListener.onCompletion(mp);
 					// }
-					if (handlerStatus != null) {
-						handlerStatus.sendEmptyMessage(AUDIO_STOP);
+					if (mHandlerStatusListener != null) {
+						CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_STOP, 0, 0, null);
 					}
 					mMediaPlayer.stop();
 					mMediaPlayer.release();
@@ -588,8 +588,9 @@ public abstract class CommonActivity extends FragmentActivity {
 				animationDrawable.start();
 			}
 		} catch (IOException e) {
-			handlerStatus.sendMessage(handlerStatus.obtainMessage(AUDIO_STOP, 1, 0));// 中途停止播放
-			// handlerStatus.sendEmptyMessage(AUDIO_STOP);
+			if (mHandlerStatusListener != null) {
+				CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_STOP, 1, 0, null);// 中途停止播放
+			}
 			mMediaPlayer.release();
 			mMediaPlayer = null;// 必须设为空，不然只执行一次播放
 			if (animationDrawable != null) {
@@ -653,7 +654,7 @@ public abstract class CommonActivity extends FragmentActivity {
 	 * @param localPath
 	 * @description:
 	 */
-	public void playAudio(String localPath, Handler handler) {
+	public void playAudio(String localPath, HandlerListener mHandlerListener) {
 		if (mMediaPlayer == null) {
 			mMediaPlayer = new MediaPlayer();
 		}
@@ -664,8 +665,8 @@ public abstract class CommonActivity extends FragmentActivity {
 			mMediaPlayer.stop();
 			mMediaPlayer.release();
 			mMediaPlayer = null;
-			if (handlerStatus != null) {
-				handlerStatus.sendEmptyMessage(AUDIO_STOP);
+			if (mHandlerStatusListener != null) {
+				CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_STOP, 0, 1, null);
 			}
 			if (strAudioPath != null && strAudioPath.length() > 0 && strAudioPath.equals(localPath)) {
 				// 正在播放又再次点击就停止播放
@@ -679,16 +680,16 @@ public abstract class CommonActivity extends FragmentActivity {
 			mMediaPlayer.setDataSource(localPath);
 			mMediaPlayer.prepare();
 			strAudioPath = localPath;
-			handlerStatus = handler;
-			if (handlerStatus != null) {
-				handlerStatus.sendEmptyMessage(AUDIO_PLAYING);
+			mHandlerStatusListener = mHandlerListener;
+			if (mHandlerStatusListener != null) {
+				CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_PLAYING, 0, 1, null);
 			}
 			mMediaPlayer.start();
 			mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 				@Override
 				public void onCompletion(MediaPlayer mp) {
-					if (handlerStatus != null) {
-						handlerStatus.sendEmptyMessage(AUDIO_STOP);
+					if (mHandlerStatusListener != null) {
+						CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_STOP, 0, 0, null);
 					}
 					mMediaPlayer.stop();
 					mMediaPlayer.release();
@@ -696,8 +697,8 @@ public abstract class CommonActivity extends FragmentActivity {
 				}
 			});
 		} catch (IOException e) {
-			if (handlerStatus != null) {
-				handlerStatus.sendEmptyMessage(AUDIO_STOP);
+			if (mHandlerStatusListener != null) {
+				CommonHandler.getInstatnce().handerMessage(mHandlerStatusListener, AUDIO_STOP, 0, 0, null);
 			}
 			mMediaPlayer.release();
 			mMediaPlayer = null;// 必须设为空，不然只执行一次播放
